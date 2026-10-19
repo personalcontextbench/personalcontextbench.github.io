@@ -1,0 +1,660 @@
+<title>PersonalContextBench Brief</title>
+<script>document.documentElement.setAttribute('data-theme', 'light');</script>
+<style>
+/* Layout: the At a Glance look, cut to one page for outside readers. Warm canvas with a static wash, a floating glass bar, glass question cards, solid cards for charts. Visual first: each section is one picture and a line or two. Light only by choice, cream only for labels and the one pill that asks for help, never for data. */
+:root {
+  color-scheme: light;
+  --canvas: #F6F4EE;
+  --raised: #FFFFFF;
+  --card: #FFFFFF;
+  --sunken: #F1EDE3;
+  --tertiary: #EDE9E0;
+  --text: #1B1B1F;
+  --text2: #6E6E76;
+  --text3: #A5A5AC;
+  --cream-text: #8A6E3E;
+  --cream-stroke: rgba(169, 138, 85, 0.5);
+  --cream-fill: #F0DCBC;
+  --cream-on: #4A3A18;
+  --success: #2E9E74;
+  --warning: #D08700;
+  --success-fill: rgba(46, 158, 116, 0.14);  --success-stroke: rgba(46, 158, 116, 0.24);
+  --warning-fill: rgba(208, 135, 0, 0.14);   --warning-stroke: rgba(208, 135, 0, 0.24);
+  --border-subtle: rgba(0, 0, 0, 0.05);
+  --border: rgba(0, 0, 0, 0.09);
+  --border-strong: rgba(0, 0, 0, 0.14);
+  --divider: rgba(27, 27, 31, 0.06);
+  --glass-bar: rgba(255, 255, 255, 0.5);
+  --glass-card: rgba(255, 255, 255, 0.62);
+  --glass-bar-stroke: rgba(255, 255, 255, 0.65);
+  --glass-stroke: rgba(0, 0, 0, 0.09);
+  --specular: rgba(255, 255, 255, 0.9);
+  --glass-solid: #FFFFFF;
+  --shadow-soft: rgba(27, 27, 31, 0.14);
+  --shadow-strong: rgba(27, 27, 31, 0.22);
+  --wash: radial-gradient(500px circle at 12% -6%, rgba(214, 182, 140, 0.18), rgba(214, 182, 140, 0) 100%);
+  --font: -apple-system, BlinkMacSystemFont, "SF Pro Text", "SF Pro Display", "Helvetica Neue", "Segoe UI", Roboto, Arial, sans-serif;
+}
+* { box-sizing: border-box; }
+body { margin: 0; background: var(--canvas); color: var(--text); font: 400 16px/1.45 var(--font); -webkit-font-smoothing: antialiased; }
+body::before { content: ""; position: fixed; inset: 0; background: var(--wash); pointer-events: none; z-index: 0; }
+.wrap { position: relative; z-index: 1; max-width: 940px; margin: 0 auto; padding-inline: 20px; padding-block: 12px 64px; display: grid; gap: 48px; }
+@media (max-width: 480px) { .wrap { padding-inline: 16px; gap: 40px; } }
+h1, h2, h3 { margin: 0; text-wrap: balance; }
+h1 { font-size: clamp(2.3rem, 6.5vw, 3.6rem); line-height: 1.02; font-weight: 700; letter-spacing: -0.03em; }
+h2 { font-size: clamp(1.3rem, 3vw, 1.6rem); line-height: 1.2; font-weight: 600; letter-spacing: -0.015em; }
+h3 { font-size: 1.06rem; font-weight: 600; letter-spacing: -0.005em; }
+p { margin: 0; }
+ul { margin: 0; }
+.eyebrow { font-size: 11px; line-height: 1.2; font-weight: 700; text-transform: uppercase; letter-spacing: 1.1px; color: var(--text3); }
+.lede { font-size: 1.15rem; line-height: 1.45; max-width: 44ch; color: var(--text2); }
+.note { color: var(--text2); font-size: 0.92rem; max-width: 70ch; }
+.note b { color: var(--text); font-weight: 600; }
+.small { font-size: 0.82rem; color: var(--text3); max-width: 80ch; }
+section { display: grid; gap: 18px; min-width: 0; }
+.head { display: grid; gap: 6px; }
+.glass { background: var(--glass-card); -webkit-backdrop-filter: blur(22px) saturate(1.3); backdrop-filter: blur(22px) saturate(1.3); border: 1px solid var(--glass-stroke); box-shadow: inset 0 1px 0 var(--specular), 0 6px 14px var(--shadow-soft); }
+.solid { background: var(--raised); border: 1px solid var(--border-subtle); box-shadow: 0 6px 14px -6px var(--shadow-soft); }
+@media (prefers-reduced-transparency: reduce) { .glass, .bar { background: var(--glass-solid); -webkit-backdrop-filter: none; backdrop-filter: none; } }
+.card { border-radius: 16px; padding: 18px; display: grid; gap: 14px; min-width: 0; }
+
+/* glass top bar */
+.bar { position: sticky; top: calc(env(safe-area-inset-top, 0px) + 10px); z-index: 5; display: flex; justify-content: space-between; align-items: center; gap: 12px; padding: 8px 8px 8px 18px; border-radius: 30px; background: var(--glass-bar); -webkit-backdrop-filter: blur(22px) saturate(1.3); backdrop-filter: blur(22px) saturate(1.3); border: 1px solid var(--glass-bar-stroke); box-shadow: inset 0 1px 0 var(--specular), 0 8px 18px var(--shadow-strong); }
+.bar .name { font-weight: 600; font-size: 0.95rem; }
+.bar .name span { color: var(--text3); font-weight: 500; margin-left: 6px; }
+@media (max-width: 480px) { .bar .name span { display: none; } }
+
+/* pills */
+.pill { display: inline-flex; align-items: center; gap: 6px; font-size: 12px; font-weight: 600; line-height: 1; padding: 7px 11px; border-radius: 999px; white-space: nowrap; border: 1px solid var(--border); color: var(--text2); background: var(--tertiary); }
+.pill.sel { background: var(--cream-fill); border-color: var(--cream-stroke); color: var(--cream-on); }
+.pill.ok { background: var(--success-fill); border-color: var(--success-stroke); color: var(--success); }
+.pill.warn { background: var(--warning-fill); border-color: var(--warning-stroke); color: var(--warning); }
+.pill .d { width: 6px; height: 6px; border-radius: 50%; background: currentColor; }
+.pill.sm { font-size: 10.5px; padding: 4px 7px; }
+
+/* hero and the four findings */
+.hero { display: grid; gap: 18px; padding-top: 18px; }
+.by { display: flex; flex-wrap: wrap; gap: 8px; }
+.qs { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 12px; }
+.q { border-radius: 20px; padding: 16px; display: flex; flex-direction: column; gap: 10px; min-width: 0; }
+/* Cards in a row share a height while closed. Once one opens, the others keep their own height instead of stretching with it. */
+.q > .more { margin-top: auto; }
+.qs:has(details[open]) > .q { align-self: start; }
+.q.one { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); column-gap: 28px; row-gap: 12px; align-items: start; }
+.q.one > .more { grid-column: 1 / -1; margin-top: 0; }
+.q.one .qt, .q.one .qc { display: grid; gap: 8px; min-width: 0; }
+@media (max-width: 760px) { .q.one { grid-template-columns: 1fr; } }
+.q .num { width: 26px; height: 26px; border-radius: 50%; display: grid; place-items: center; font-size: 13px; font-weight: 700; color: var(--cream-on); background: var(--cream-fill); }
+.q .qa { font-size: 1.2rem; line-height: 1.25; font-weight: 700; letter-spacing: -0.01em; }
+.q .sub { font-size: 0.92rem; line-height: 1.4; color: var(--text2); }
+.q .unit { font-size: 0.78rem; font-weight: 600; color: var(--text3); margin-top: 4px; }
+.q .mkey { display: flex; gap: 14px; font-size: 0.78rem; color: var(--text2); }
+.q .mkey span { display: inline-flex; align-items: center; gap: 6px; }
+.q .mkey i { position: relative; display: inline-block; width: 14px; height: 14px; }
+.q .mkey i .db-a, .q .mkey i .db-b { left: 50%; }
+.h1q { font-size: clamp(2rem, 5.4vw, 3.1rem); }
+.short { font-size: 1.02rem; line-height: 1.45; max-width: 52ch; padding: 12px 16px; border-radius: 14px; background: var(--raised); border: 1px solid var(--border-subtle); }
+.short b { font-weight: 600; }
+/* how to read the findings */
+.howto { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 14px; padding: 14px 16px; border-radius: 14px; border: 1px dashed var(--border-strong); font-size: 0.88rem; color: var(--text2); line-height: 1.4; }
+.howto > div { display: grid; gap: 6px; align-content: start; min-width: 0; }
+.howto b { color: var(--text); font-weight: 600; }
+.howto .mb-bar { max-width: 160px; }
+.howto .chev { display: inline-block; margin: 0 4px 2px; }
+@media (max-width: 640px) { .howto { grid-template-columns: 1fr; } }
+@media (max-width: 760px) { .qs { grid-template-columns: 1fr; } }
+.mb { display: grid; gap: 7px; }
+.mb-row { display: grid; grid-template-columns: 7.6em minmax(0, 1fr) 3.9em; gap: 8px; align-items: center; font-size: 0.82rem; color: var(--text2); }
+.mb-row span { white-space: nowrap; }
+.mb-row b { color: var(--text); font-size: 0.98rem; text-align: right; font-variant-numeric: tabular-nums; white-space: nowrap; }
+.mb-row b.r { font-size: 0.8rem; }
+.mb-bar { position: relative; height: 12px; border-radius: 999px; background: var(--sunken); overflow: hidden; }
+.mb-bar i { position: absolute; top: 0; bottom: 0; left: 0; display: block; background: var(--success); border-radius: 999px; }
+.mb-bar i.dim { background: var(--text3); }
+.mb-row.dbr { grid-template-columns: 7.6em minmax(0, 1fr) 4.9em; }
+.mb-row.dbr b { font-size: 0.9rem; }
+.pair { display: grid; gap: 4px; }
+.pair + .pair { margin-top: 6px; }
+.pair .pn { font-size: 0.82rem; font-weight: 600; color: var(--text); }
+.pair .mb-row { grid-template-columns: 4.6em minmax(0, 1fr) 3.4em; }
+
+/* the answer: one scale for everything, out of 10 */
+.answers { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 12px; align-items: stretch; }
+.answers:has(details[open]) > .ans { align-self: start; }
+.ans { border-radius: 18px; padding: 18px; display: flex; flex-direction: column; gap: 14px; min-width: 0; }
+.ans > .more { margin-top: auto; }
+.aq { font-size: 1.05rem; line-height: 1.3; font-weight: 600; letter-spacing: -0.005em; }
+.acap { font-size: 0.85rem; line-height: 1.4; color: var(--text2); margin-top: -8px; }
+.tens { display: grid; gap: 9px; }
+.tr { display: grid; grid-template-columns: minmax(0, 12rem) auto 1.1rem; justify-content: start; gap: 10px; align-items: center; font-size: 0.88rem; color: var(--text2); }
+.tens.two .tr { grid-template-columns: minmax(0, 8rem) auto 1.1rem; }
+.tens .who { font-size: 0.88rem; font-weight: 600; color: var(--text); }
+.tens .tr + .who { margin-top: 8px; }
+.ten { display: grid; grid-template-columns: repeat(10, 15px); gap: 3px; }
+.ten i { display: block; width: 15px; height: 15px; border-radius: 4px; background: var(--sunken); box-shadow: inset 0 0 0 1px var(--border-strong); }
+.ten i.on { background: var(--success); box-shadow: none; }
+.tn { font-size: 1rem; color: var(--text); text-align: right; font-variant-numeric: tabular-nums; }
+@media (max-width: 860px) { .answers { grid-template-columns: 1fr; } }
+@media (max-width: 480px) {
+  .tr, .tens.two .tr { grid-template-columns: minmax(0, 1fr) 1.4rem; grid-template-areas: "l n" "s s"; row-gap: 4px; }
+  .tl { grid-area: l; } .tn { grid-area: n; } .ten { grid-area: s; grid-template-columns: repeat(10, minmax(0, 1fr)); max-width: 260px; } .ten i { width: auto; height: auto; aspect-ratio: 1; }
+}
+/* the answer as three pictures: one square per fact in the fraction, green for remembered */
+.stats { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 12px; }
+.stat { border-radius: 18px; padding: 16px; display: grid; gap: 10px; align-content: start; min-width: 0; }
+.stat .n { font-size: clamp(2rem, 5vw, 2.6rem); font-weight: 700; letter-spacing: -0.03em; line-height: 1; }
+.stat span { font-size: 0.92rem; color: var(--text2); line-height: 1.35; }
+.stat small { font-size: 0.85rem; font-weight: 600; color: var(--text); line-height: 1.3; }
+@media (min-width: 641px) { .stat small { min-height: 2.6em; } }
+.ia { display: grid; grid-template-columns: repeat(var(--n), minmax(0, 24px)); gap: 5px; }
+.ia i { display: block; aspect-ratio: 1; border-radius: 5px; background: var(--sunken); box-shadow: inset 0 0 0 1px var(--border-strong); }
+.ia i.on { background: var(--success); box-shadow: none; }
+@media (max-width: 640px) {
+  .stats { grid-template-columns: 1fr; gap: 8px; }
+  .stat { padding: 14px; gap: 8px; }
+  .stat .n { font-size: 1.9rem; }
+}
+/* one fact on its way to the answer: icons share one row, so the line stays straight however the captions wrap */
+.journey { display: grid; grid-template-columns: 1.3fr repeat(4, minmax(0, 1fr)) 1.3fr; grid-template-rows: auto auto; align-items: center; }
+.jq { grid-row: 1; display: grid; gap: 4px; padding: 12px 14px; border-radius: 14px; background: var(--sunken); position: relative; z-index: 1; min-width: 0; }
+.jq.start { grid-column: 1; } .jq.goal { grid-column: 6; background: var(--success-fill); border: 1px solid var(--success-stroke); }
+.jq small { font-size: 0.78rem; color: var(--text2); }
+.jq b { font-size: 0.98rem; line-height: 1.3; }
+.jc { grid-row: 1; align-self: stretch; position: relative; display: grid; place-items: center; min-height: 56px; }
+.jc::before { content: ""; position: absolute; left: 0; right: 0; top: 50%; height: 2px; margin-top: -1px; background: var(--border-strong); }
+.jc .ic { position: relative; z-index: 1; width: 48px; height: 48px; border-radius: 50%; display: grid; place-items: center; background: var(--raised); border: 2px solid var(--text); color: var(--text); }
+.jl { grid-row: 2; align-self: start; display: grid; justify-items: center; text-align: center; gap: 2px; padding: 10px 4px 0; min-width: 0; }
+.jl b { font-size: 0.95rem; font-weight: 700; }
+.jl small { font-size: 0.82rem; color: var(--text2); line-height: 1.3; }
+.s1 { grid-column: 2; } .s2 { grid-column: 3; } .s3 { grid-column: 4; } .s4 { grid-column: 5; }
+@media (max-width: 640px) {
+  .journey { grid-template-columns: 48px minmax(0, 1fr); grid-template-rows: none; column-gap: 14px; align-items: center; }
+  .jq.start { grid-column: 1 / span 2; grid-row: 1; margin-bottom: 6px; }
+  .jq.goal { grid-column: 1 / span 2; grid-row: 6; margin-top: 6px; }
+  .jc { grid-column: 1; min-height: 0; padding: 5px 0; }
+  .jc::before { left: 23px; right: auto; top: 0; bottom: 0; width: 2px; height: auto; margin-top: 0; }
+  .jl { grid-column: 2; justify-items: start; text-align: left; padding: 0; align-self: center; }
+  .jc.s1, .jl.s1 { grid-row: 2; } .jc.s2, .jl.s2 { grid-row: 3; } .jc.s3, .jl.s3 { grid-row: 4; } .jc.s4, .jl.s4 { grid-row: 5; }
+}
+/* the example, told as a short story, then the four steps */
+.story { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 10px; }
+.beat { border-radius: 14px; padding: 14px; background: var(--sunken); display: grid; gap: 6px; align-content: start; min-width: 0; }
+.beat .when { font-size: 0.82rem; font-weight: 600; color: var(--text2); }
+.beat p { font-size: 1.08rem; line-height: 1.3; font-weight: 600; letter-spacing: -0.005em; }
+.beat.goal { background: var(--success-fill); border: 1px solid var(--success-stroke); }
+@media (max-width: 640px) { .story { grid-template-columns: 1fr; } }
+.lead { font-size: 0.98rem; color: var(--text); font-weight: 600; }
+/* the test in five numbers: a big number, what it counts, a muted line */
+.stats { display: grid; grid-template-columns: repeat(5, minmax(0, 1fr)); gap: 18px; }
+.st { display: grid; gap: 2px; align-content: start; min-width: 0; }
+.st b { font-size: 2.1rem; font-weight: 700; letter-spacing: -0.02em; line-height: 1.05; font-variant-numeric: tabular-nums; }
+.st .sk { font-size: 0.95rem; font-weight: 600; color: var(--text); }
+.st .sd { font-size: 0.85rem; color: var(--text2); line-height: 1.4; margin-top: 4px; }
+dl.kv.sys { margin: 0; padding: 0; border: 0; font-size: 0.9rem; grid-template-columns: 13rem minmax(0, 1fr); }
+dl.kv.sys dt { font-size: 0.9rem; font-weight: 600; letter-spacing: 0; text-transform: none; color: var(--text); padding-top: 0; }
+@media (max-width: 560px) { dl.kv.sys { grid-template-columns: 1fr; gap: 2px; } dl.kv.sys dd { margin-bottom: 8px; } }
+dl.kv.sys dd { margin: 0; color: var(--text2); }
+@media (max-width: 860px) { .stats { grid-template-columns: 1fr; gap: 14px; } .st { grid-template-columns: 5.2rem minmax(0, 1fr); column-gap: 12px; } .st b { grid-row: span 2; font-size: 1.7rem; } .st .sd { margin-top: 0; } }
+.walk { border-radius: 20px; padding: 20px; display: grid; gap: 22px; }
+.req { display: grid; gap: 6px; }
+.say { font-size: clamp(1.15rem, 2.6vw, 1.4rem); line-height: 1.3; font-weight: 600; letter-spacing: -0.01em; }
+.req p.need { font-size: 0.95rem; color: var(--text2); }
+.req p.need b { color: var(--text); font-weight: 600; background: var(--sunken); border: 1px solid var(--border); border-radius: 999px; padding: 2px 9px; white-space: nowrap; }
+.rail4 { list-style: none; margin: 0; padding: 0; display: grid; grid-template-columns: repeat(4, minmax(0, 1fr)); }
+.rail4 li { position: relative; display: grid; gap: 4px; align-content: start; padding-right: 12px; min-width: 0; }
+.rail4 .node { position: relative; z-index: 1; width: 34px; height: 34px; border-radius: 50%; display: grid; place-items: center; font-size: 16px; font-weight: 700; color: var(--raised); margin-bottom: 8px; }
+.rail4 li::before { content: ""; position: absolute; left: 34px; right: 0; top: 16px; height: 3px; background: var(--success); }
+.rail4 li:last-child::before { content: none; }
+.rail4 .ok .node { background: var(--success); }
+.rail4 .bad .node { background: var(--warning); }
+.rail4 .bad::before { background: repeating-linear-gradient(90deg, var(--border-strong) 0 6px, transparent 6px 11px); }
+.rail4 .off .node { background: var(--raised); border: 2px dashed var(--border-strong); }
+.rail4 b { font-size: 1.15rem; font-weight: 700; letter-spacing: -0.015em; }
+.rail4 span.qt { font-size: 0.92rem; color: var(--text2); line-height: 1.35; }
+.rail4 em { font-style: normal; font-weight: 600; font-size: 0.92rem; margin-top: 4px; }
+.rail4 .ok em { color: var(--success); }
+.rail4 .bad em { color: var(--warning); }
+.rail4 .off em, .rail4 .off b { color: var(--text3); }
+.rail4 .n .node { background: var(--text); font-size: 15px; }
+.rail4 .n::before { background: var(--border-strong); }
+@media (max-width: 640px) {
+  .rail4 { grid-template-columns: 1fr; gap: 0; }
+  .rail4 li { grid-template-columns: 34px minmax(0, 1fr); column-gap: 14px; padding: 0 0 18px; }
+  .rail4 li:last-child { padding-bottom: 0; }
+  .rail4 .node { grid-row: span 3; margin-bottom: 0; }
+  .rail4 li::before { left: 16px; right: auto; top: 34px; bottom: 0; width: 3px; height: auto; }
+  .rail4 .bad::before { background: repeating-linear-gradient(180deg, var(--border-strong) 0 6px, transparent 6px 11px); }
+}
+
+/* the main chart */
+.sl-head, .sx > summary { display: grid; grid-template-columns: 200px minmax(0, 1fr) 44px 72px 16px; gap: 10px; align-items: center; }
+.sl-head { padding: 0 0 4px; white-space: nowrap; font-size: 11px; font-weight: 700; letter-spacing: 1.1px; text-transform: uppercase; color: var(--text3); }
+.sl-head span:nth-child(n+3), .sl-u, .sl-p { text-align: right; }
+.sls { display: grid; gap: 2px; }
+.sx > summary { list-style: none; cursor: pointer; font-size: 0.92rem; padding: 7px 8px; margin: 0 -8px; border-radius: 10px; }
+.sx > summary::-webkit-details-marker { display: none; }
+.sx > summary:hover, .sx[open] > summary { background: var(--sunken); }
+.sx > summary:focus-visible, .more > summary:focus-visible { outline: 2px solid var(--cream-stroke); outline-offset: 2px; }
+.sx.limit { border-top: 1px dashed var(--border-strong); padding-top: 6px; margin-top: 6px; }
+.sx.limit .sl-name { color: var(--text2); }
+.chev { width: 8px; height: 8px; border-right: 1.5px solid var(--text3); border-bottom: 1.5px solid var(--text3); transform: rotate(45deg); justify-self: center; transition: transform .15s; margin-top: -4px; flex: none; }
+details[open] > summary .chev { transform: rotate(-135deg); margin-top: 4px; }
+dl.kv { margin: 6px 0 10px; padding: 12px 14px; border-left: 3px solid var(--border-strong); display: grid; grid-template-columns: 8.5rem minmax(0, 1fr); gap: 7px 14px; }
+dl.kv dt { font-size: 11px; font-weight: 700; letter-spacing: 1.1px; text-transform: uppercase; color: var(--text3); padding-top: 3px; }
+dl.kv dd { margin: 0; font-size: 0.92rem; color: var(--text2); line-height: 1.45; }
+.hint { font-size: 0.85rem; color: var(--text2); }
+/* a memory's name anywhere above the main chart opens its row there */
+a.sys { color: inherit; text-decoration: none; border-bottom: 1px dotted var(--border-strong); justify-self: start; cursor: pointer; }
+a.sys:hover { border-bottom-color: currentColor; }
+a.sys:focus-visible { outline: 2px solid var(--cream-stroke); outline-offset: 2px; border-radius: 4px; }
+.sx { scroll-margin-top: 80px; }
+/* generic expander */
+.more > summary { list-style: none; cursor: pointer; display: flex; justify-content: space-between; align-items: center; gap: 10px; font-size: 0.88rem; font-weight: 600; color: var(--cream-text); padding-top: 10px; border-top: 1px solid var(--divider); }
+.more > summary::-webkit-details-marker { display: none; }
+.more > summary .chev { border-color: var(--cream-text); }
+.more-body { display: grid; gap: 8px; padding-top: 10px; font-size: 0.9rem; color: var(--text2); line-height: 1.45; }
+.more-body b { color: var(--text); font-weight: 600; }
+.more-body ul { padding-left: 1.1em; display: grid; gap: 6px; }
+.more-body dl.kv { margin: 0; padding: 0; border: 0; grid-template-columns: 7.5rem minmax(0, 1fr); }
+.more[id] { scroll-margin-top: 80px; }
+.sl-bar { display: flex; height: 14px; border-radius: 999px; overflow: hidden; background: var(--sunken); }
+.seg { display: block; height: 100%; }
+.seg.u { background: var(--success); }
+.seg.lu { background: var(--text2); }
+.seg.lr { background: var(--warning); }
+.seg.ls { background: var(--text3); }
+.seg.ln { background: var(--tertiary); box-shadow: inset 0 0 0 1px var(--border); }
+.sl-u { font-weight: 600; font-variant-numeric: tabular-nums; }
+.sl-p { color: var(--text2); font-variant-numeric: tabular-nums; }
+.legend { display: flex; flex-wrap: wrap; gap: 8px 16px; font-size: 0.82rem; color: var(--text2); }
+.legend span { display: inline-flex; align-items: center; gap: 6px; }
+.legend i.seg { width: 12px; height: 12px; border-radius: 3px; }
+@media (max-width: 560px) {
+  .sl-head { display: none; }
+  .sx > summary { grid-template-columns: minmax(0, 1fr) 40px 56px 16px; grid-template-areas: "n n n c" "b u p ."; row-gap: 4px; }
+  .sx .sl-name { grid-area: n; } .sx .sl-bar { grid-area: b; } .sx .sl-u { grid-area: u; } .sx .sl-p { grid-area: p; } .sx .chev { grid-area: c; }
+  dl.kv { grid-template-columns: 1fr; gap: 2px; }
+  dl.kv dd { margin-bottom: 8px; }
+}
+
+/* price against quality, by memory size */
+.pqw { position: relative; }
+.pqr { position: absolute; width: 1px; height: 1px; opacity: 0; pointer-events: none; }
+.pqseg { display: flex; flex-wrap: wrap; gap: 6px; }
+.pqseg label { display: inline-flex; align-items: center; font-size: 13px; font-weight: 600; line-height: 1; padding: 9px 13px; border-radius: 999px; border: 1px solid var(--border); color: var(--text2); background: var(--tertiary); cursor: pointer; user-select: none; }
+.pqseg label:hover { color: var(--text); }
+#pq1:checked ~ .pqseg label[for="pq1"], #pq2:checked ~ .pqseg label[for="pq2"], #pq4:checked ~ .pqseg label[for="pq4"], #pq10:checked ~ .pqseg label[for="pq10"] { background: var(--cream-fill); border-color: var(--cream-stroke); color: var(--cream-on); }
+#pq1:focus-visible ~ .pqseg label[for="pq1"], #pq2:focus-visible ~ .pqseg label[for="pq2"], #pq4:focus-visible ~ .pqseg label[for="pq4"], #pq10:focus-visible ~ .pqseg label[for="pq10"] { outline: 2px solid var(--cream-stroke); outline-offset: 2px; }
+.pq { display: block; width: 100%; height: auto; font-family: var(--font); overflow: visible; }
+.pq-phone { display: none; }
+.pq .gr { stroke: var(--divider); stroke-width: 1; }
+.pq .ax { stroke: var(--border-strong); stroke-width: 1.5; }
+.pq .tk, .pq .at { fill: var(--text3); }
+.pq .wm { fill: var(--text3); font-weight: 700; opacity: 0; transition: opacity .3s; }
+.pq .tr { fill: none; stroke: var(--border-strong); stroke-width: 2; stroke-linejoin: round; stroke-linecap: round; }
+.pq .tr.dr { stroke: var(--warning); stroke-opacity: .35; }
+.pq .tp { fill: var(--text3); }
+.pq .p { transform: translate(var(--x1), var(--y1)); transition: transform .55s cubic-bezier(.3, .7, .3, 1); }
+.pq .p circle { fill: var(--text); stroke: var(--raised); stroke-width: 2; transition: opacity .3s; }
+.pq .p.dr circle { fill: var(--warning); }
+.pq .l { fill: var(--text); opacity: 0; transition: opacity .3s; paint-order: stroke; stroke: var(--raised); stroke-width: 4px; stroke-linejoin: round; }
+#pq1:checked ~ .pqx .l1, #pq1:checked ~ .pqx .wm1, #pq2:checked ~ .pqx .l2, #pq2:checked ~ .pqx .wm2,
+#pq4:checked ~ .pqx .l4, #pq4:checked ~ .pqx .wm4, #pq10:checked ~ .pqx .l10, #pq10:checked ~ .pqx .wm10 { opacity: 1; }
+#pq2:checked ~ .pqx .p { transform: translate(var(--x2), var(--y2)); }
+#pq4:checked ~ .pqx .p { transform: translate(var(--x4), var(--y4)); }
+#pq10:checked ~ .pqx .p { transform: translate(var(--x10), var(--y10)); }
+#pq2:checked ~ .pqx .p.g2 circle, #pq10:checked ~ .pqx .p.g10 circle { opacity: .35; }
+#pq2:checked ~ .pqx .p.g2 .l2, #pq10:checked ~ .pqx .p.g10 .l10 { fill: var(--text3); }
+.pqkey { display: flex; flex-wrap: wrap; gap: 8px 16px; font-size: 0.82rem; color: var(--text2); }
+.pqkey span { display: inline-flex; align-items: center; gap: 7px; }
+.pqkey i { display: inline-block; flex: none; }
+.pqkey .k-dot { width: 11px; height: 11px; border-radius: 50%; background: var(--text); }
+.pqkey .k-dot.dr { background: var(--warning); }
+.pqkey .k-line { width: 22px; height: 2px; border-radius: 2px; background: var(--border-strong); box-shadow: 0 0 0 0 transparent; position: relative; }
+.pqkey .k-line::before, .pqkey .k-line::after { content: ""; position: absolute; top: -2px; width: 5px; height: 5px; border-radius: 50%; background: var(--text3); }
+.pqkey .k-line::before { left: -1px; } .pqkey .k-line::after { right: -1px; }
+@media (max-width: 560px) { .pq-desk { display: none; } .pq-phone { display: block; } .pqseg { gap: 5px; } .pqseg label { font-size: 12px; padding: 8px 9px; } }
+@media (prefers-reduced-motion: reduce) { .pq .p, .pq .l, .pq .wm, .pq .p circle { transition: none; } }
+
+/* memory growth */
+.sizes { display: grid; grid-template-columns: repeat(4, minmax(0, 1fr)); gap: 10px; }
+.sz { border-radius: 12px; padding: 12px; background: var(--sunken); display: grid; gap: 4px; align-content: end; min-width: 0; }
+.sz .box { display: flex; align-items: flex-end; height: 60px; margin-bottom: 6px; }
+.sz .box i { display: block; border-radius: 4px; background: var(--text3); }
+.sz b { font-size: 1.2rem; font-weight: 700; letter-spacing: -0.01em; }
+.sz span { font-size: 0.82rem; color: var(--text2); }
+.sz.done { background: var(--success-fill); border: 1px solid var(--success-stroke); }
+.sz.done .box i { background: var(--success); }
+.sz.next { background: transparent; border: 1px dashed var(--border-strong); }
+.dbs { display: grid; gap: 2px; }
+.db-head, .dx > summary { display: grid; grid-template-columns: 200px minmax(0, 1fr) 104px 84px 16px; gap: 12px; align-items: center; }
+.db-head { font-size: 11px; font-weight: 700; letter-spacing: 0.8px; text-transform: uppercase; color: var(--text3); padding-bottom: 4px; }
+.dx > summary { list-style: none; cursor: pointer; font-size: 0.92rem; padding: 7px 8px; margin: 0 -8px; border-radius: 10px; }
+.dx > summary::-webkit-details-marker { display: none; }
+.dx > summary:hover, .dx[open] > summary { background: var(--sunken); }
+.dx > summary:focus-visible { outline: 2px solid var(--cream-stroke); outline-offset: 2px; }
+.db-track { position: relative; height: 16px; min-width: 0; }
+.db-track::before { content: ""; position: absolute; left: 0; right: 0; top: 7px; height: 2px; border-radius: 2px; background: var(--sunken); }
+.db-line { position: absolute; top: 6px; height: 4px; border-radius: 2px; background: var(--text3); }
+.db-a, .db-b, .db-m { position: absolute; top: 50%; border-radius: 50%; transform: translate(-50%, -50%); }
+.db-a { width: 14px; height: 14px; border: 2px solid var(--text3); background: var(--raised); }
+.db-b { width: 9px; height: 9px; background: var(--text); }
+.db-m { width: 7px; height: 7px; background: var(--text3); }
+.drop .db-line { background: var(--warning); }
+.drop .db-b { background: var(--warning); }
+.db-v { font-variant-numeric: tabular-nums; white-space: nowrap; text-align: right; color: var(--text3); }
+.db-v b { color: var(--text); font-weight: 600; }
+.db-v small { display: block; font-size: 0.72rem; line-height: 1.2; color: var(--text3); }
+.db-w { justify-self: start; }
+.db-key { display: flex; flex-wrap: wrap; gap: 8px 16px; font-size: 0.82rem; color: var(--text2); }
+.db-key span { display: inline-flex; align-items: center; gap: 6px; }
+.db-key i { position: relative; display: inline-block; width: 14px; height: 14px; }
+.db-key i .db-a, .db-key i .db-b, .db-key i .db-m { left: 50%; }
+@media (max-width: 560px) {
+  .sizes { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+  .db-head { display: none; }
+  .dx > summary { grid-template-columns: minmax(0, 1fr) 3rem 4.25rem 16px; grid-template-areas: "n n w c" "t v v ."; row-gap: 4px; column-gap: 10px; }
+  .dx .db-n { grid-area: n; } .dx .db-track { grid-area: t; } .dx .db-v { grid-area: v; } .dx .db-w { grid-area: w; justify-self: end; } .dx .chev { grid-area: c; }
+}
+
+/* what is new */
+.adds { display: grid; grid-template-columns: repeat(4, minmax(0, 1fr)); gap: 10px; }
+.add { border-radius: 14px; padding: 12px; display: grid; gap: 8px; align-content: start; background: var(--sunken); font-size: 0.9rem; min-width: 0; }
+.add b { font-size: 1rem; font-weight: 600; }
+.add span { font-size: 0.88rem; color: var(--text2); line-height: 1.4; }
+@media (max-width: 720px) { .adds { grid-template-columns: repeat(2, minmax(0, 1fr)); } }
+@media (max-width: 340px) { .adds { grid-template-columns: 1fr; } }
+
+/* status */
+.steps { list-style: none; margin: 0; padding: 0; display: grid; grid-template-columns: repeat(5, minmax(0, 1fr)); }
+.step { display: grid; gap: 6px; align-content: start; padding-right: 8px; }
+.step .rail { display: flex; align-items: center; }
+.step .c { width: 18px; height: 18px; border-radius: 50%; border: 2px solid var(--border-strong); background: var(--raised); flex: none; }
+.step .ln { height: 2px; background: var(--border); flex: 1; }
+.step.done .c { background: var(--success); border-color: var(--success); }
+.step.done .ln { background: var(--success); }
+.step.now .c { background: var(--raised); border-color: var(--success); box-shadow: 0 0 0 4px var(--success-fill); }
+.step:last-child .ln { visibility: hidden; }
+.step b { font-size: 0.95rem; font-weight: 600; }
+.step span { font-size: 0.84rem; color: var(--text2); }
+@media (max-width: 760px) {
+  .steps { grid-template-columns: 1fr; gap: 12px; }
+  .step { grid-template-columns: 18px 1fr; column-gap: 12px; }
+  .step .rail { grid-row: span 2; align-items: flex-start; }
+  .step .ln { display: none; }
+}
+
+/* the ask */
+.asks { display: grid; grid-template-columns: repeat(4, minmax(0, 1fr)); gap: 12px; }
+.ask { border-radius: 16px; padding: 16px; display: grid; gap: 6px; align-content: start; min-width: 0; }
+.ask p { font-size: 0.9rem; color: var(--text2); }
+.ask small { font-size: 0.8rem; color: var(--text3); }
+@media (max-width: 760px) { .asks { grid-template-columns: 1fr 1fr; } }
+@media (max-width: 340px) { .asks { grid-template-columns: 1fr; } }
+</style>
+
+<main class="wrap">
+
+  <nav class="bar" aria-label="Page">
+    <span class="name">PersonalContextBench<span>research brief</span></span>
+    <span class="pill ok">Early results</span>
+  </nav>
+
+  <header class="hero">
+    <div class="eyebrow">Research draft, October 2026</div>
+    <h1 class="h1q">Does your AI remember what you tell it?</h1>
+    <p class="lede">We gave 9 AI memory systems 5 months of a made-up person's life, then checked what they remembered</p>
+    <div class="answers">
+      <div class="ans solid">
+        <h2 class="aq">Out of every 10 facts it needed, how many did each system remember?</h2>
+        <p class="acap">Two people, 5 months and about 1,700 messages each</p>
+        <div class="tens" role="group" aria-label="Out of 10 facts: ChatGPT memory 9, IntentOne 9, Claude memory 8, search over messages 6, the weakest system, which reads screenshots, 2.">
+          <div class="tr"><a class="tl sys" href="#m-cg">ChatGPT memory*</a><div class="ten" aria-hidden="true"><i class="on"></i><i class="on"></i><i class="on"></i><i class="on"></i><i class="on"></i><i class="on"></i><i class="on"></i><i class="on"></i><i class="on"></i><i></i></div><b class="tn">9</b></div>
+          <div class="tr"><a class="tl sys" href="#m-io">IntentOne</a><div class="ten" aria-hidden="true"><i class="on"></i><i class="on"></i><i class="on"></i><i class="on"></i><i class="on"></i><i class="on"></i><i class="on"></i><i class="on"></i><i class="on"></i><i></i></div><b class="tn">9</b></div>
+          <div class="tr"><a class="tl sys" href="#m-cl">Claude memory*</a><div class="ten" aria-hidden="true"><i class="on"></i><i class="on"></i><i class="on"></i><i class="on"></i><i class="on"></i><i class="on"></i><i class="on"></i><i class="on"></i><i></i><i></i></div><b class="tn">8</b></div>
+          <div class="tr"><a class="tl sys" href="#m-se">Search over messages</a><div class="ten" aria-hidden="true"><i class="on"></i><i class="on"></i><i class="on"></i><i class="on"></i><i class="on"></i><i class="on"></i><i></i><i></i><i></i><i></i></div><b class="tn">6</b></div>
+          <div class="tr"><a class="tl sys" href="#m-ms">Weakest: reads screenshots</a><div class="ten" aria-hidden="true"><i class="on"></i><i class="on"></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i></div><b class="tn">2</b></div>
+        </div>
+        <p class="note">The top three are too close to call<br>Each beats every search and screen memory</p>
+        <details class="more"><summary>What these numbers mean<span class="chev" aria-hidden="true"></span></summary><div class="more-body"><p>Each system was asked 113 everyday requests. A fact counts as remembered when it ended up in the answer. Rounded to whole facts out of 10, the exact shares are: ChatGPT memory* 91%, IntentOne 89%, Claude memory* 81%, search over messages 59%, and the weakest, which reads screenshots, 24%</p><p>The search systems lose most facts at step 3: the fact is stored, but it isn't found when it's needed</p><p>Handing the AI the whole history with every request, which is not a memory, reached 88%, at 40 times the price</p><p>Each number is out of the facts that memory could see: 145 for memories that read AI chats and messages, 156 for screen memories. Out of all 156, ChatGPT memory* used 85% and IntentOne 83%</p><p>Tested request by request, ChatGPT memory*, IntentOne, Claude memory* and putting the whole history in the prompt aren't apart from each other, and each beats every search and screen memory</p><p>With two people this holds for these two, not yet as a ranking</p></div></details>
+      </div>
+      <div class="ans solid">
+        <h2 class="aq">And when there is much more to remember?</h2>
+        <p class="acap">One of the two people, with their 5 months made busier</p>
+        <div class="tens two" role="group" aria-label="Out of 10 facts. ChatGPT memory: 9 with about 1,700 messages, 8 with 6,700 messages, 6 with 16,600 messages. Claude memory: 8 with about 1,700 messages, 2 with 6,700 messages.">
+          <a class="who sys" href="#m-cg">ChatGPT memory*</a>
+          <div class="tr"><span class="tl">1,700 messages</span><div class="ten" aria-hidden="true"><i class="on"></i><i class="on"></i><i class="on"></i><i class="on"></i><i class="on"></i><i class="on"></i><i class="on"></i><i class="on"></i><i class="on"></i><i></i></div><b class="tn">9</b></div>
+          <div class="tr"><span class="tl">6,700 messages</span><div class="ten" aria-hidden="true"><i class="on"></i><i class="on"></i><i class="on"></i><i class="on"></i><i class="on"></i><i class="on"></i><i class="on"></i><i class="on"></i><i></i><i></i></div><b class="tn">8</b></div>
+          <div class="tr"><span class="tl">16,600 messages</span><div class="ten" aria-hidden="true"><i class="on"></i><i class="on"></i><i class="on"></i><i class="on"></i><i class="on"></i><i class="on"></i><i></i><i></i><i></i><i></i></div><b class="tn">6</b></div>
+          <a class="who sys" href="#m-cl">Claude memory*</a>
+          <div class="tr"><span class="tl">1,700 messages</span><div class="ten" aria-hidden="true"><i class="on"></i><i class="on"></i><i class="on"></i><i class="on"></i><i class="on"></i><i class="on"></i><i class="on"></i><i class="on"></i><i></i><i></i></div><b class="tn">8</b></div>
+          <div class="tr"><span class="tl">6,700 messages</span><div class="ten" aria-hidden="true"><i class="on"></i><i class="on"></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i></div><b class="tn">2</b></div>
+        </div>
+        <p class="note">Two got worse: ChatGPT memory* at 16,600 messages, Claude memory* already at 6,700<br>The other 5 systems we tried stayed about the same</p>
+        <details class="more"><summary>What we know so far<span class="chev" aria-hidden="true"></span></summary><div class="more-body"><p>We made one of our two people's 5 months busier, with more contacts and more messages: from about 1,700 messages to 3,400, 6,700 and 16,600, or 2, 4 and 10 times as many. At 16,600 messages the history is about 1.4 million tokens</p><p><b>ChatGPT memory*</b> went from 90% to 84% at 4 times, within chance, then to 62% at 10 times, a real drop. It still had 96% of the facts stored, but found the right ones only 63% of the time. It can hand only about 6,000 tokens of notes to each answer, and at 10 times its notes likely outgrow that room</p><p><b>Claude memory*</b> went from 81% to 56% to 20% at 4 times. It writes facts down as well as ever, but its notes have to stay under 1,000 words, so each rewrite likely has to drop more. We didn't run it at 10 times</p><p>IntentOne, search over messages and both screen memories stayed within chance of where they started at every size. Handing over the whole history held to 4 times, but at 10 times it no longer fits in what the AI can read at once</p><p>All of this is one made-up person so far. The memory growth section below has every system</p></div></details>
+      </div>
+    </div>
+    <p class="small">* Our rebuilds of ChatGPT's and Claude's memory, made from what OpenAI and Anthropic have published, not the real apps</p>
+    <div class="by">
+      <span class="pill sel">Looking for reviewers and co-authors</span>
+    </div>
+  </header>
+
+  <section aria-labelledby="ex-h">
+    <div class="head">
+      <div class="eyebrow">How it works</div>
+      <h2 id="ex-h">Where a fact can get lost</h2>
+    </div>
+    <div class="walk solid">
+      <div class="journey" role="group" aria-label="One fact on its way from what you said to the answer">
+        <div class="jq start"><small>Weeks ago you say</small><b>"Priya is vegetarian"</b></div>
+        <div class="jc s1"><span class="ic"><svg viewBox="0 0 24 24" width="22" height="22" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M4 20h4L19 9l-4-4L4 16v4z"/><path d="M13.5 6.5l4 4"/></svg></span></div>
+        <div class="jl s1"><b>1 Learn</b><small>writes it down</small></div>
+        <div class="jc s2"><span class="ic"><svg viewBox="0 0 24 24" width="22" height="22" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="3.5" y="4" width="17" height="5" rx="1.2"/><path d="M5.5 9v10.5h13V9"/><path d="M10 13h4"/></svg></span></div>
+        <div class="jl s2"><b>2 Store</b><small>keeps it</small></div>
+        <div class="jc s3"><span class="ic"><svg viewBox="0 0 24 24" width="22" height="22" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="11" cy="11" r="6"/><path d="M20 20l-4.6-4.6"/></svg></span></div>
+        <div class="jl s3"><b>3 Recall</b><small>finds it when needed</small></div>
+        <div class="jc s4"><span class="ic"><svg viewBox="0 0 24 24" width="22" height="22" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M5 12.5l4.5 4.5L19 7.5"/></svg></span></div>
+        <div class="jl s4"><b>4 Use</b><small>puts it in the answer</small></div>
+        <div class="jq goal"><small>Today you ask for a restaurant</small><b>It picks a vegetarian place</b></div>
+      </div>
+      <p class="note">If any step fails, the fact is lost. We check every step, for every fact</p>
+    </div>
+  </section>
+
+  <section aria-labelledby="find-h">
+    <div class="head">
+      <div class="eyebrow">What else we found</div>
+      <h2 id="find-h">Where memory gets its facts</h2>
+    </div>
+    <div class="q glass one">
+      <div class="qt">
+        <p class="qa">Messages beat screenshots</p>
+        <p class="sub">Screens show every fact the requests need, more than messages do, yet the same memory used fewer of them</p>
+      </div>
+      <div class="qc">
+        <span class="unit">Facts used, of 156 needed</span>
+        <div class="mb" role="img" aria-label="Of 156 needed facts, the same ChatGPT memory used 132 fed messages and 89 fed screenshots read by OCR.">
+          <div class="mb-row"><span>Messages</span><div class="mb-bar"><i style="width:84.6%"></i></div><b>132</b></div>
+          <div class="mb-row"><span>Screenshots</span><div class="mb-bar"><i class="dim" style="width:57.1%"></i></div><b>89</b></div>
+        </div>
+      </div>
+      <details class="more"><summary>Why screens did worse<span class="chev" aria-hidden="true"></span></summary><div class="more-body"><p>The same ChatGPT memory*, given screenshots of the person's screen instead of their messages, used 89 facts instead of 132, and cost twice as much: $1.98 versus $1.02 a month per person</p><p>From screens, the memory wrote down 149 of the 156 facts, more than from messages. But its notes grew more than 20 times longer</p><p>It can hand the AI only about 4,500 words at a time (6,000 tokens). Past that, it hands over only the lines that share words with the request. So of the 62 facts it learned but missed, 56 never reached the AI</p><p>Reading the exact screen text did no better (87) than reading screenshots with OCR (89). Search points the same way: 86 facts from messages, 80 from screens</p><p>Our screens are cleaner than real desktops, so this is a best case for screens</p></div></details>
+    </div>
+  </section>
+
+  <section aria-labelledby="test-h">
+    <div class="head">
+      <div class="eyebrow">The test</div>
+      <h2 id="test-h">What we tested</h2>
+    </div>
+    <div class="card solid">
+      <div class="stats">
+        <div class="st"><b>2</b><span class="sk">made-up people</span><span class="sd">5 months of AI chats, messages and screens each</span></div>
+        <div class="st"><b>3,358</b><span class="sk">messages</span><span class="sd">About 1,970 in chats with an AI and 1,390 with other people</span></div>
+        <div class="st"><b>113</b><span class="sk">requests</span><span class="sd">Questions and everyday asks, like drafting a message</span></div>
+        <div class="st"><b>156</b><span class="sk">needed facts</span><span class="sd">Facts from the person's life that the requests depend on</span></div>
+        <div class="st"><b>9</b><span class="sk">memory systems</span><span class="sd"><a class="sys" href="#m-cg">ChatGPT memory*</a>, <a class="sys" href="#m-cl">Claude memory*</a>, <a class="sys" href="#m-io">IntentOne</a> and 6 others</span></div>
+      </div>
+      <p class="note"><b>Each person talks to their AI and to other people, and facts live in both</b><br>Tests like LongMemEval and HaluMem use AI chats only<br>Memories carried facts from messages almost as well as from AI chats</p>
+      <details class="more"><summary>The 9 systems<span class="chev" aria-hidden="true"></span></summary><div class="more-body"><dl class="kv sys">
+        <dt>ChatGPT memory*, Claude memory*</dt><dd>Our rebuilds of how ChatGPT's and Claude's memory work, following what their makers have published. They are not the real apps</dd>
+        <dt>IntentOne</dt><dd>Roma's own app, tested as it is</dd>
+        <dt>5 search systems</dt><dd>Instead of taking notes, they keep old messages or screenshots and search them for whatever matches the request</dd>
+        <dt>Whole history</dt><dd>Not a memory: the AI is handed every past message with every request. It works, but it costs about 40 times more than ChatGPT memory*</dd>
+      </dl></div></details>
+      <details class="more"><summary>Where the people and messages come from<span class="chev" aria-hidden="true"></span></summary><div class="more-body"><p>Each synthetic person is generated from a hidden list of true facts: 8 contacts with 3 or 4 facts each, plus 8 facts about the person, 36 in all, some of them changing over time</p><p>From that list come about 150 days of AI chats, chat and email with the contacts, and the pages and apps the person looked at. Of 1,679 messages each, most are ordinary filler, as in real life</p><p>We decide where each fact shows up, so how many facts each source holds is set by the design: AI chats alone show 91 of the 156 facts the requests need, adding messages to people shows 145, and screens show all 156</p><p>What we measure is how well a memory carries them. Of the facts each could see, ChatGPT memory* used 97% from AI chats alone and 91% with messages added, and IntentOne 91% and 89%</p><p>No real person's data is used</p></div></details>
+      <details class="more"><summary>How each step is checked<span class="chev" aria-hidden="true"></span></summary><div class="more-body"><dl class="kv"><dt>Learn</dt><dd>Is the fact in any weekly snapshot of the memory</dd><dt>Store</dt><dd>Is it in the final memory with its current value. An old value counts as lost</dd><dt>Recall</dt><dd>Is it in what the memory handed the AI for this request</dd><dt>Use</dt><dd>Does the answer use it</dd></dl><p>Each check looks for the fact's key words. A fact said in other words counts as lost, and one named wrongly, negated or out of date can count as used. Two outside raters will check this</p></div></details>
+      <details class="more"><summary>What the requests are<span class="chev" aria-hidden="true"></span></summary><div class="more-body"><p>113 requests across the two people, needing 156 facts in all: questions about the past, facts that changed, drafting a message, everyday requests typed into an AI app, questions that need two sources, privacy checks, and questions with no answer</p><p>Every memory runs on Claude Haiku 5.5 and every answer on Claude Sonnet 5.5, so the differences come from the memory</p></div></details>
+    </div>
+  </section>
+
+  <section aria-labelledby="loss-h">
+    <div class="head">
+      <div class="eyebrow">All nine systems</div>
+      <h2 id="loss-h">Where each memory system forgets</h2>
+      <p class="hint">Each bar is one system. Green is the facts its answers used. The other colors show the step where the rest were lost. Tap a memory to see how it works</p>
+    </div>
+    <div class="card solid">
+      <div class="sl-head" aria-hidden="true"><span>Memory</span><span>Read each bar from the left</span><span>Used</span><span>$ / month</span><span></span></div>
+      <div class="sls">
+        <details class="sx" id="m-cg"><summary><span class="sl-name">ChatGPT memory*</span><div class="sl-bar" role="img" aria-label="ChatGPT memory: 91% used, 3% lost at use, 3% lost at store, 3% never learned. $1.02 a month."><span class="seg u" style="width:91.0%"></span><span class="seg lu" style="width:3.0%"></span><span class="seg ls" style="width:3.0%"></span><span class="seg ln" style="width:3.0%"></span></div><span class="sl-u">91%</span><span class="sl-p">$1.02</span><span class="chev" aria-hidden="true"></span></summary><dl class="kv"><dt>What it is</dt><dd>A rebuild of ChatGPT&#x27;s saved memories from OpenAI&#x27;s public description, not the product itself</dd><dt>Learns</dt><dd>After each message, the AI writes down lasting facts as short lines</dd><dt>Keeps</dt><dd>Adds them to one list and never edits it, so an old value can sit next to the new one</dd><dt>Hands the AI</dt><dd>The whole list while it fits in about 6,000 tokens. Here it stayed near 2,800, so the AI always got all of it</dd><dt>Loses facts at</dt><dd>No single step: about 3% never learned, 3% lost at store and 3% at use</dd></dl></details>
+        <details class="sx" id="m-io"><summary><span class="sl-name">IntentOne</span><div class="sl-bar" role="img" aria-label="IntentOne: 89% used, 5% lost at use, 3% lost at recall, 3% never learned. $0.70 a month."><span class="seg u" style="width:89.0%"></span><span class="seg lu" style="width:4.8%"></span><span class="seg lr" style="width:3.4%"></span><span class="seg ln" style="width:2.8%"></span></div><span class="sl-u">89%</span><span class="sl-p">$0.70</span><span class="chev" aria-hidden="true"></span></summary><dl class="kv"><dt>What it is</dt><dd>Roma&#x27;s own app. Its memory code from the development branch of October 18 runs unchanged, as the app&#x27;s Debug build runs it by default</dd><dt>Learns</dt><dd>From the person&#x27;s own sent messages, on one learning path</dd><dt>Hands the AI</dt><dd>A card for each person in the request, up to 40 facts each, plus an About me card, about 1,300 tokens in all. For the person you&#x27;re writing to, the app&#x27;s AI also adds up to 5 older lines from their history that fit the request</dd><dt>Loses facts at</dt><dd>Use and recall: it writes down 97%, hands over 94%, and its answers use 89%</dd><dt>Not quite the app</dt><dd>Release builds turn this learning path and the older-lines pick off, and drafts here don&#x27;t get the saved messages they get in the app</dd></dl></details>
+        <details class="sx" id="m-wh"><summary><span class="sl-name">Whole history in the prompt</span><div class="sl-bar" role="img" aria-label="Whole history in the prompt: 88% used, 11% lost at use, 1% never learned. $40.87 a month."><span class="seg u" style="width:88.0%"></span><span class="seg lu" style="width:11.0%"></span><span class="seg ln" style="width:1.0%"></span></div><span class="sl-u">88%</span><span class="sl-p">$40.87</span><span class="chev" aria-hidden="true"></span></summary><dl class="kv"><dt>What it is</dt><dd>No memory at all. Every message goes into every request, about 200,000 tokens</dd><dt>Loses facts at</dt><dd>Use: the AI misses about a tenth of the facts in its huge prompt</dd><dt>Price</dt><dd>$40.87 a month, 40 times the price of ChatGPT memory*, for no better answers</dd></dl></details>
+        <details class="sx" id="m-cl"><summary><span class="sl-name">Claude memory*</span><div class="sl-bar" role="img" aria-label="Claude memory: 81% used, 10% lost at use, 7% lost at store, 2% never learned. $1.14 a month."><span class="seg u" style="width:81.0%"></span><span class="seg lu" style="width:10.0%"></span><span class="seg ls" style="width:7.0%"></span><span class="seg ln" style="width:2.0%"></span></div><span class="sl-u">81%</span><span class="sl-p">$1.14</span><span class="chev" aria-hidden="true"></span></summary><dl class="kv"><dt>What it is</dt><dd>A rebuild of Claude&#x27;s memory from Anthropic&#x27;s public description, not the product itself</dd><dt>Learns and keeps</dt><dd>Every 10 messages, the AI rewrites one profile of the person and their contacts, under 1,000 words</dd><dt>Hands the AI</dt><dd>The whole profile</dd><dt>Loses facts at</dt><dd>Store and use: its rewrites keep 91%, and its answers use 81%</dd><dt>Setup</dt><dd>Its rewrites need room: with a 1,500-token output limit 94% were cut off, so it runs with 8,000, where none are</dd></dl></details>
+        <details class="sx" id="m-se"><summary><span class="sl-name">Search over messages</span><div class="sl-bar" role="img" aria-label="Search over messages: 59% used, 1% lost at use, 39% lost at recall, 1% never learned. $1.93 a month."><span class="seg u" style="width:59.0%"></span><span class="seg lu" style="width:1.0%"></span><span class="seg lr" style="width:39.0%"></span><span class="seg ln" style="width:1.0%"></span></div><span class="sl-u">59%</span><span class="sl-p">$1.93</span><span class="chev" aria-hidden="true"></span></summary><dl class="kv"><dt>What it is</dt><dd>The same search screen memory uses, matching words and meaning, run over the messages instead of screens</dd><dt>Hands the AI</dt><dd>The messages its search ranks best for the request</dd><dt>Loses facts at</dt><dd>Recall: it keeps 99% of the facts but hands over 60%</dd></dl></details>
+        <details class="sx" id="m-sx"><summary><span class="sl-name">Screen memory, exact text</span><div class="sl-bar" role="img" aria-label="Screen memory, exact text: 51% used, 1% lost at use, 48% lost at recall. $2.24 a month."><span class="seg u" style="width:51.0%"></span><span class="seg lu" style="width:1.0%"></span><span class="seg lr" style="width:48.0%"></span></div><span class="sl-u">51%</span><span class="sl-p">$2.24</span><span class="chev" aria-hidden="true"></span></summary><dl class="kv"><dt>What it is</dt><dd>In the style of Microsoft Recall: a searchable timeline of every screen the person saw</dd><dt>This version</dt><dd>Reads each screen&#x27;s exact text, what perfect OCR would see</dd><dt>Hands the AI</dt><dd>The text of the screens its search ranks best</dd><dt>Loses facts at</dt><dd>Recall: it keeps every fact but hands over 52%</dd></dl></details>
+        <details class="sx" id="m-so"><summary><span class="sl-name">Screen memory, OCR</span><div class="sl-bar" role="img" aria-label="Screen memory, OCR: 44% used, 56% lost at recall. $2.28 a month."><span class="seg u" style="width:44.0%"></span><span class="seg lr" style="width:56.0%"></span></div><span class="sl-u">44%</span><span class="sl-p">$2.28</span><span class="chev" aria-hidden="true"></span></summary><dl class="kv"><dt>What it is</dt><dd>The same timeline, read from the screenshots with OCR as real products do. OCR read 98.9% of on-screen words</dd><dt>Loses facts at</dt><dd>Recall: it keeps every fact but hands over 44%</dd></dl></details>
+        <details class="sx" id="m-mx"><summary><span class="sl-name">MIRIX, exact text</span><div class="sl-bar" role="img" aria-label="MIRIX, exact text: 43% used, 11% lost at use, 38% lost at recall, 4% lost at store, 4% never learned. $2.75 a month."><span class="seg u" style="width:43.0%"></span><span class="seg lu" style="width:11.0%"></span><span class="seg lr" style="width:38.0%"></span><span class="seg ls" style="width:4.0%"></span><span class="seg ln" style="width:4.0%"></span></div><span class="sl-u">43%</span><span class="sl-p">$2.75</span><span class="chev" aria-hidden="true"></span></summary><dl class="kv"><dt>What it is</dt><dd>An open-source memory agent from 2025 that files what it reads into six kinds of memory, given each screen&#x27;s exact text</dd><dt>Hands the AI</dt><dd>What its own search returns for the request</dd><dt>Loses facts at</dt><dd>Recall and use: it hands over 54%, and its answers use fewer of the facts they get</dd></dl></details>
+        <details class="sx" id="m-ms"><summary><span class="sl-name">MIRIX on screenshots</span><div class="sl-bar" role="img" aria-label="MIRIX on screenshots: 24% used, 7% lost at use, 69% lost at recall. $2.93 a month."><span class="seg u" style="width:24.0%"></span><span class="seg lu" style="width:7.0%"></span><span class="seg lr" style="width:69.0%"></span></div><span class="sl-u">24%</span><span class="sl-p">$2.93</span><span class="chev" aria-hidden="true"></span></summary><dl class="kv"><dt>What it is</dt><dd>The same agent, reading the screenshots themselves instead of the text</dd><dt>Loses facts at</dt><dd>Recall: it keeps every fact but hands over 31%</dd></dl></details>
+        <details class="sx limit" id="m-pm"><summary><span class="sl-name">Perfect memory (the limit)</span><div class="sl-bar" role="img" aria-label="Perfect memory (the limit): 98% used, 2% lost at use. $0.29 a month."><span class="seg u" style="width:98.0%"></span><span class="seg lu" style="width:2.0%"></span></div><span class="sl-u">98%</span><span class="sl-p">$0.29</span><span class="chev" aria-hidden="true"></span></summary><dl class="kv"><dt>What it is</dt><dd>Not a product. A test limit that shows the best any memory could do</dd><dt>What&#x27;s inside</dt><dd>The hidden list of true facts so far, one sentence each. With the request, about 800 tokens</dd><dt>Hands the AI</dt><dd>The whole list, with every request</dd><dt>Score</dt><dd>Learn, store and recall are 100% by design. The answers used 142 of the 145 facts, so the 2% gap is what the answer AI misses with every fact in front of it</dd><dt>Price</dt><dd>$0.29 a month, because building the memory costs nothing and only the answers are paid</dd></dl></details>
+      </div>
+      <div class="legend">
+        <span><i class="seg u"></i>Used in the answer</span>
+        <span><i class="seg lu"></i>Lost at step 4, use</span>
+        <span><i class="seg lr"></i>Lost at step 3, recall</span>
+        <span><i class="seg ls"></i>Lost at step 2, store</span>
+        <span><i class="seg ln"></i>Never learned, step 1</span>
+      </div>
+      <p class="note"><b>Most of the loss is at recall</b><br>Search and screen memories keep 92 to 100% of the needed facts but hand the AI only 31 to 60%, which a final score alone would not show</p>
+      <p class="small">Perfect memory is handed every true fact, so its gap shows what the AI itself misses<br>Shares are of the facts each memory could see, 145 or 156 for screen memories<br>Of all 156, ChatGPT memory* used 85% and IntentOne 83%<br>Price is one person's month plus 100 requests, <a class="sys" href="#price-how">see how we count it</a><br>* Our rebuilds of ChatGPT's and Claude's memory, not the real apps<br>IntentOne is Roma's app</p>
+    </div>
+  </section>
+
+  <section aria-labelledby="grow-h">
+    <div class="head">
+      <div class="eyebrow">Memory growth</div>
+      <h2 id="grow-h">Does memory still work as you share more?</h2>
+      <p class="hint"><b>Tested on one made-up person, so normal size here differs from the results above</b><br>Tap a memory to see what changed, and why it might</p>
+    </div>
+    <div class="sizes" role="img" aria-label="Four sizes: normal size, about 1,700 messages, measured; 3,400, 6,700 and 16,600 messages, done for one person.">
+      <div class="sz done"><div class="box"><i style="width:12px;height:12px"></i></div><b>1×</b><span>8 contacts, 1,700 messages</span><span>Normal size, measured</span></div>
+      <div class="sz done"><div class="box"><i style="width:19px;height:19px"></i></div><b>2×</b><span>16 contacts, 3,400 messages</span><span>Done, one person</span></div>
+      <div class="sz done"><div class="box"><i style="width:27px;height:27px"></i></div><b>4×</b><span>32 contacts, 6,700 messages</span><span>Done, one person</span></div>
+      <div class="sz done"><div class="box"><i style="width:60px;height:60px"></i></div><b>10×</b><span>16,600 messages</span><span>Done, one person</span></div>
+    </div>
+    <div class="card solid">
+      <div class="db-head" aria-hidden="true"><span>Memory</span><span>Share of needed facts used, 0 to 100%</span><span style="text-align:right">1× to 10×</span><span></span><span></span></div>
+      <div class="dbs">
+        <details class="dx drop"><summary><span class="db-n">ChatGPT memory*</span><span class="db-track" aria-hidden="true"><i class="db-line" style="left:62%;width:29%"></i><i class="db-a" style="left:90%"></i><i class="db-m" style="left:91%"></i><i class="db-m" style="left:84%"></i><i class="db-b" style="left:62%"></i></span><span class="db-v" aria-label="90% at normal size, 91% at twice, 84% at 4 times, 62% at 10 times">90 to <b>62%</b></span><span class="db-w pill sm warn">Drops</span><span class="chev" aria-hidden="true"></span></summary><dl class="kv"><dt>Change</dt><dd>90%, then 91% at twice the size, 84% at 4 times and 62% at 10 times. The drop at 10 times is bigger than chance</dd><dt>Where</dt><dd>Step 3, recall. At 10 times it still had 96% of the facts stored, but found the right ones for a request only 63% of the time</dd><dt>Why it might</dt><dd>It can hand about 6,000 tokens of notes to each answer. At 10 times its notes likely outgrow that room, and it then hands over only lines that share words with the request</dd><dt>Price</dt><dd>$1.02 a month at normal size, $2.01 at 10 times</dd></dl></details>
+        <details class="dx"><summary><span class="db-n">Whole history in the prompt</span><span class="db-track" aria-hidden="true"><i class="db-line" style="left:89%;width:2%"></i><i class="db-a" style="left:91%"></i><i class="db-m" style="left:91%"></i><i class="db-b" style="left:89%"></i></span><span class="db-v" aria-label="91% at normal size, 91% at twice, 89% at 4 times, too long for 10×">91 to <b>89%</b><small>Too long for 10×</small></span><span class="db-w pill sm">Holds</span><span class="chev" aria-hidden="true"></span></summary><dl class="kv"><dt>Change</dt><dd>91%, 91% and 89% up to 4 times</dd><dt>10 times</dt><dd>Can&#x27;t run. The history is about 1.4 million tokens, over the AI&#x27;s 1 million limit</dd><dt>Price</dt><dd>It grows with every message: $41 a month at normal size, $163 at 4 times</dd></dl></details>
+        <details class="dx"><summary><span class="db-n">IntentOne</span><span class="db-track" aria-hidden="true"><i class="db-line" style="left:80%;width:4%"></i><i class="db-a" style="left:82%"></i><i class="db-m" style="left:84%"></i><i class="db-m" style="left:80%"></i><i class="db-b" style="left:83%"></i></span><span class="db-v" aria-label="82% at normal size, 84% at twice, 80% at 4 times, 83% at 10 times">82 to <b>83%</b></span><span class="db-w pill sm">Holds</span><span class="chev" aria-hidden="true"></span></summary><dl class="kv"><dt>Change</dt><dd>82%, then 84% at twice the size, 80% at 4 times and 83% at 10 times. All within chance</dd><dt>Memory size</dt><dd>About 11,000 tokens at normal size and 96,500 at 10 times. It hands the AI about 2,400 tokens a request at 10 times</dd><dt>To watch</dt><dd>Each card shows up to 40 facts. None got past 40 here: the most was 32, at 10 times</dd><dt>Price</dt><dd>$0.70 a month at normal size, $2.67 at 10 times</dd></dl></details>
+        <details class="dx drop"><summary><span class="db-n">Claude memory*</span><span class="db-track" aria-hidden="true"><i class="db-line" style="left:20%;width:61%"></i><i class="db-a" style="left:81%"></i><i class="db-m" style="left:56%"></i><i class="db-b" style="left:20%"></i></span><span class="db-v" aria-label="81% at normal size, 56% at twice, 20% at 4 times, not run at 10×">81 to <b>20%</b><small>Not run at 10×</small></span><span class="db-w pill sm warn">Drops</span><span class="chev" aria-hidden="true"></span></summary><dl class="kv"><dt>Change</dt><dd>81%, then 56% at twice the size and 20% at 4 times, a drop bigger than chance</dd><dt>Where</dt><dd>Step 2, store. It still writes facts down, but at 4 times only 20% of them are left in its memory at the end, against 88% at normal size</dd><dt>Why it might</dt><dd>Its profile has to stay under 1,000 words however much you share, so each rewrite has to drop more</dd><dt>Price</dt><dd>$1.14 a month at normal size, $2.28 at 4 times</dd><dt>10 times</dt><dd>Not run, to save cost after the drop at 4 times</dd></dl></details>
+        <details class="dx"><summary><span class="db-n">Search over messages</span><span class="db-track" aria-hidden="true"><i class="db-line" style="left:52%;width:9%"></i><i class="db-a" style="left:58%"></i><i class="db-m" style="left:58%"></i><i class="db-m" style="left:61%"></i><i class="db-b" style="left:52%"></i></span><span class="db-v" aria-label="58% at normal size, 58% at twice, 61% at 4 times, 52% at 10 times">58 to <b>52%</b></span><span class="db-w pill sm">Holds</span><span class="chev" aria-hidden="true"></span></summary><dl class="kv"><dt>Change</dt><dd>58%, 58%, 61% and 52% at 10 times, all within chance</dd><dt>To watch</dt><dd>More old messages compete for the same room, so there are more look-alikes to pick by mistake</dd><dt>Price</dt><dd>$1.93 a month at normal size, $2.08 at 10 times</dd></dl></details>
+        <details class="dx"><summary><span class="db-n">Screen memory, exact text</span><span class="db-track" aria-hidden="true"><i class="db-line" style="left:41%;width:9%"></i><i class="db-a" style="left:50%"></i><i class="db-m" style="left:41%"></i><i class="db-m" style="left:47%"></i><i class="db-b" style="left:46%"></i></span><span class="db-v" aria-label="50% at normal size, 41% at twice, 47% at 4 times, 46% at 10 times">50 to <b>46%</b></span><span class="db-w pill sm">Holds</span><span class="chev" aria-hidden="true"></span></summary><dl class="kv"><dt>Change</dt><dd>50%, 41%, 47% and 46% at 10 times, all within chance</dd><dt>To watch</dt><dd>More screens compete for the same room, so there are more look-alikes to pick by mistake</dd><dt>Price</dt><dd>$2.24 a month at normal size, $2.29 at 10 times</dd></dl></details>
+        <details class="dx"><summary><span class="db-n">Screen memory, OCR</span><span class="db-track" aria-hidden="true"><i class="db-line" style="left:34%;width:9%"></i><i class="db-a" style="left:43%"></i><i class="db-m" style="left:39%"></i><i class="db-m" style="left:41%"></i><i class="db-b" style="left:34%"></i></span><span class="db-v" aria-label="43% at normal size, 39% at twice, 41% at 4 times, 34% at 10 times">43 to <b>34%</b></span><span class="db-w pill sm">Holds</span><span class="chev" aria-hidden="true"></span></summary><dl class="kv"><dt>Change</dt><dd>43%, 39%, 41% and 34% at 10 times, all within chance</dd><dt>Price</dt><dd>$2.28 a month at normal size, $2.32 at 10 times</dd></dl></details>
+      </div>
+      <div class="db-key">
+        <span><i><span class="db-a"></span></i>Normal size</span>
+        <span><i><span class="db-m"></span></i>Twice and 4 times as much</span>
+        <span><i><span class="db-b"></span></i>Biggest size it ran at, usually 10 times</span>
+      </div>
+      <p class="note"><b>Two memories clearly get worse: Claude memory* by 4 times, ChatGPT memory* at 10 times</b><br>Every other memory stays within chance of where it started</p>
+      <p class="small">One made-up person, so the normal-size numbers here differ from the two-person chart above. IntentOne, for one, used 82% for this person and 95% for the other<br>Every size is scored on the same mix of questions</p>
+      <details class="more"><summary>How the bigger sizes are made<span class="chev" aria-hidden="true"></span></summary><div class="more-body"><p>The same generator writes 5 months for a synthetic person built the same way, with more contacts and more messages: 16 contacts at twice the size and 32 at 4 times. At 10 times the messages come to about 1.4 million tokens</p><p>Every memory runs on the bigger history and is asked the same kinds of questions about it</p></div></details>
+      <details class="more"><summary>How sure this is<span class="chev" aria-hidden="true"></span></summary><div class="more-body"><p>The normal and 10 times sizes asked 54 questions of one person, the 2 and 4 times sizes 38. With so few, small changes can be chance. Search over messages' 6-point dip at 10 times could really be anything from 20 points down to 8 points up</p><p>The drop for ChatGPT memory* at 10 times is 27 points, and at least 15 even at the low end. The drop for Claude memory* at 4 times is 60 points, and at least 46. Neither is chance</p><p>At 10 times, IntentOne used 83% and ChatGPT memory* 62%. For this one made-up person that gap is bigger than chance: 16 facts only IntentOne used, 1 only ChatGPT memory*. IntentOne is also clearly ahead of search and both screen memories there. With one person, this is not yet a ranking</p><p>The bigger sizes happened to ask a different mix of questions, so each size is scored as if it had the normal size's mix. Before that correction, search over messages seemed to rise from 58% to 80% at 4 times. It doesn't</p></div></details>
+    </div>
+  </section>
+
+  <section aria-labelledby="price-h">
+    <div class="head">
+      <div class="eyebrow">Price</div>
+      <h2 id="price-h">What memory costs as it grows</h2>
+      <p class="hint"><b>The same one made-up person, so normal size differs from the results above: IntentOne is at 82% here and 89% there</b><br>Higher means more facts used, further left means cheaper<br>Pick a size to watch each memory move</p>
+    </div>
+    <div class="card solid pqw" role="group" aria-label="Pick a memory size">
+      <input class="pqr" type="radio" name="pqs" id="pq1" value="1" checked aria-label="Normal size"><input class="pqr" type="radio" name="pqs" id="pq2" value="2" aria-label="2 times the history"><input class="pqr" type="radio" name="pqs" id="pq4" value="4" aria-label="4 times the history"><input class="pqr" type="radio" name="pqs" id="pq10" value="10" aria-label="10 times the history"><div class="pqseg" aria-hidden="true"><label for="pq1">Normal size</label><label for="pq2">2 times</label><label for="pq4">4 times</label><label for="pq10">10 times</label></div><div class="pqx" role="img" aria-label="Facts used against price per person per month, at each memory size. ChatGPT memory: normal size 90% for $1 a month, 2 times the history 91% for $2 a month, 4 times the history 84% for $2 a month, 10 times the history 62% for $2 a month. Claude memory: normal size 81% for $1 a month, 2 times the history 56% for $2 a month, 4 times the history 20% for $2 a month, not run at 10×. IntentOne: normal size 82% for $0.70 a month, 2 times the history 84% for $0.90 a month, 4 times the history 80% for $1 a month, 10 times the history 83% for $3 a month. Whole history in the prompt: normal size 91% for $41 a month, 2 times the history 91% for $81 a month, 4 times the history 89% for $163 a month, too long for 10×. Search over messages: normal size 58% for $2 a month, 2 times the history 58% for $2 a month, 4 times the history 61% for $2 a month, 10 times the history 52% for $2 a month. Screen memory, exact text: normal size 50% for $2 a month, 2 times the history 41% for $2 a month, 4 times the history 47% for $2 a month, 10 times the history 46% for $2 a month. Screen memory, OCR: normal size 43% for $2 a month, 2 times the history 39% for $2 a month, 4 times the history 41% for $2 a month, 10 times the history 34% for $2 a month"><svg class="pq pq-desk" viewBox="0 0 860 396" aria-hidden="true" focusable="false"><line class="gr" x1="56" x2="846" y1="350.0" y2="350.0"/><text class="tk" style="font-size:12px" x="50" y="354.0" text-anchor="end">0%</text><line class="gr" x1="56" x2="846" y1="265.5" y2="265.5"/><text class="tk" style="font-size:12px" x="50" y="269.5" text-anchor="end">25%</text><line class="gr" x1="56" x2="846" y1="181.0" y2="181.0"/><text class="tk" style="font-size:12px" x="50" y="185.0" text-anchor="end">50%</text><line class="gr" x1="56" x2="846" y1="96.5" y2="96.5"/><text class="tk" style="font-size:12px" x="50" y="100.5" text-anchor="end">75%</text><line class="gr" x1="56" x2="846" y1="12.0" y2="12.0"/><text class="tk" style="font-size:12px" x="50" y="16.0" text-anchor="end">100%</text><line class="gr" x1="83.4" x2="83.4" y1="12" y2="350"/><text class="tk" style="font-size:12px" x="83.4" y="366" text-anchor="middle">$0.50</text><line class="gr" x1="168.4" x2="168.4" y1="12" y2="350"/><text class="tk" style="font-size:12px" x="168.4" y="366" text-anchor="middle">$1</text><line class="gr" x1="253.5" x2="253.5" y1="12" y2="350"/><text class="tk" style="font-size:12px" x="253.5" y="366" text-anchor="middle">$2</text><line class="gr" x1="365.9" x2="365.9" y1="12" y2="350"/><text class="tk" style="font-size:12px" x="365.9" y="366" text-anchor="middle">$5</text><line class="gr" x1="451.0" x2="451.0" y1="12" y2="350"/><text class="tk" style="font-size:12px" x="451.0" y="366" text-anchor="middle">$10</text><line class="gr" x1="536.1" x2="536.1" y1="12" y2="350"/><text class="tk" style="font-size:12px" x="536.1" y="366" text-anchor="middle">$20</text><line class="gr" x1="648.5" x2="648.5" y1="12" y2="350"/><text class="tk" style="font-size:12px" x="648.5" y="366" text-anchor="middle">$50</text><line class="gr" x1="733.6" x2="733.6" y1="12" y2="350"/><text class="tk" style="font-size:12px" x="733.6" y="366" text-anchor="middle">$100</text><line class="gr" x1="818.6" x2="818.6" y1="12" y2="350"/><text class="tk" style="font-size:12px" x="818.6" y="366" text-anchor="middle">$200</text><line class="ax" x1="56" x2="846" y1="350" y2="350"/><text class="at" style="font-size:12px" x="846" y="392" text-anchor="end">Price per person per month →</text><text class="at" style="font-size:12px" transform="translate(16 181.0) rotate(-90)" text-anchor="middle">Facts used →</text><text class="wm wm1" style="font-size:22px" x="840" y="340" text-anchor="end">Normal size</text><text class="wm wm2" style="font-size:22px" x="840" y="340" text-anchor="end">2 times the history</text><text class="wm wm4" style="font-size:22px" x="840" y="340" text-anchor="end">4 times the history</text><text class="wm wm10" style="font-size:22px" x="840" y="340" text-anchor="end">10 times the history</text><polyline class="tr dr" points="170.9,45.8 249.1,42.4 248.5,66.1 254.1,140.4"/><circle class="tp" cx="170.9" cy="45.8" r="2.5"/><circle class="tp" cx="249.1" cy="42.4" r="2.5"/><circle class="tp" cx="248.5" cy="66.1" r="2.5"/><circle class="tp" cx="254.1" cy="140.4" r="2.5"/><polyline class="tr dr" points="184.5,76.2 232.1,160.7 269.6,282.4"/><circle class="tp" cx="184.5" cy="76.2" r="2.5"/><circle class="tp" cx="232.1" cy="160.7" r="2.5"/><circle class="tp" cx="269.6" cy="282.4" r="2.5"/><polyline class="tr" points="124.7,72.8 155.5,66.1 200.6,79.6 289.0,69.5"/><circle class="tp" cx="124.7" cy="72.8" r="2.5"/><circle class="tp" cx="155.5" cy="66.1" r="2.5"/><circle class="tp" cx="200.6" cy="79.6" r="2.5"/><circle class="tp" cx="289.0" cy="69.5" r="2.5"/><polyline class="tr" points="623.8,42.4 708.4,42.4 793.2,49.2"/><circle class="tp" cx="623.8" cy="42.4" r="2.5"/><circle class="tp" cx="708.4" cy="42.4" r="2.5"/><circle class="tp" cx="793.2" cy="49.2" r="2.5"/><polyline class="tr" points="249.1,154.0 254.7,154.0 255.3,143.8 258.3,174.2"/><circle class="tp" cx="249.1" cy="154.0" r="2.5"/><circle class="tp" cx="254.7" cy="154.0" r="2.5"/><circle class="tp" cx="255.3" cy="143.8" r="2.5"/><circle class="tp" cx="258.3" cy="174.2" r="2.5"/><polyline class="tr" points="267.4,181.0 269.0,211.4 270.1,191.1 270.1,194.5"/><circle class="tp" cx="267.4" cy="181.0" r="2.5"/><circle class="tp" cx="269.0" cy="211.4" r="2.5"/><circle class="tp" cx="270.1" cy="191.1" r="2.5"/><circle class="tp" cx="270.1" cy="194.5" r="2.5"/><polyline class="tr" points="269.6,204.7 271.2,218.2 270.7,211.4 271.7,235.1"/><circle class="tp" cx="269.6" cy="204.7" r="2.5"/><circle class="tp" cx="271.2" cy="218.2" r="2.5"/><circle class="tp" cx="270.7" cy="211.4" r="2.5"/><circle class="tp" cx="271.7" cy="235.1" r="2.5"/><g class="p p-cg dr" style="--x1:170.9px;--y1:45.8px;--x2:249.1px;--y2:42.4px;--x4:248.5px;--y4:66.1px;--x10:254.1px;--y10:140.4px"><circle r="6"/><text class="l l1" style="font-size:14px" x="10" y="4" text-anchor="start">ChatGPT memory*</text><text class="l l2" style="font-size:14px" x="10" y="4" text-anchor="start">ChatGPT memory*</text><text class="l l4" style="font-size:14px" x="10" y="4" text-anchor="start">ChatGPT memory*</text><text class="l l10" style="font-size:14px" x="10" y="4" text-anchor="start">ChatGPT memory*</text></g><g class="p p-cl dr g10" style="--x1:184.5px;--y1:76.2px;--x2:232.1px;--y2:160.7px;--x4:269.6px;--y4:282.4px;--x10:269.6px;--y10:282.4px"><circle r="6"/><text class="l l1" style="font-size:14px" x="10" y="4" text-anchor="start">Claude memory*</text><text class="l l2" style="font-size:14px" x="-10" y="4" text-anchor="end">Claude memory*</text><text class="l l4" style="font-size:14px" x="10" y="4" text-anchor="start">Claude memory*</text><text class="l l10" style="font-size:14px" x="10" y="4" text-anchor="start">Claude memory*, not run at 10×</text></g><g class="p p-io" style="--x1:124.7px;--y1:72.8px;--x2:155.5px;--y2:66.1px;--x4:200.6px;--y4:79.6px;--x10:289.0px;--y10:69.5px"><circle r="6"/><text class="l l1" style="font-size:14px" x="-10" y="4" text-anchor="end">IntentOne</text><text class="l l2" style="font-size:14px" x="10" y="4" text-anchor="start">IntentOne</text><text class="l l4" style="font-size:14px" x="-10" y="4" text-anchor="end">IntentOne</text><text class="l l10" style="font-size:14px" x="10" y="4" text-anchor="start">IntentOne</text></g><g class="p p-wh g10" style="--x1:623.8px;--y1:42.4px;--x2:708.4px;--y2:42.4px;--x4:793.2px;--y4:49.2px;--x10:793.2px;--y10:49.2px"><circle r="6"/><text class="l l1" style="font-size:14px" x="-10" y="4" text-anchor="end">Whole history in the prompt</text><text class="l l2" style="font-size:14px" x="-10" y="4" text-anchor="end">Whole history in the prompt</text><text class="l l4" style="font-size:14px" x="-10" y="4" text-anchor="end">Whole history in the prompt</text><text class="l l10" style="font-size:14px" x="-10" y="4" text-anchor="end">Whole history in the prompt, too long for 10×</text></g><g class="p p-se" style="--x1:249.1px;--y1:154.0px;--x2:254.7px;--y2:154.0px;--x4:255.3px;--y4:143.8px;--x10:258.3px;--y10:174.2px"><circle r="6"/><text class="l l1" style="font-size:14px" x="10" y="4" text-anchor="start">Search over messages</text><text class="l l2" style="font-size:14px" x="10" y="4" text-anchor="start">Search over messages</text><text class="l l4" style="font-size:14px" x="10" y="4" text-anchor="start">Search over messages</text><text class="l l10" style="font-size:14px" x="10" y="4" text-anchor="start">Search over messages</text></g><g class="p p-sx" style="--x1:267.4px;--y1:181.0px;--x2:269.0px;--y2:211.4px;--x4:270.1px;--y4:191.1px;--x10:270.1px;--y10:194.5px"><circle r="6"/><text class="l l1" style="font-size:14px" x="10" y="4" text-anchor="start">Screen memory, exact text</text><text class="l l2" style="font-size:14px" x="10" y="-3" text-anchor="start">Screen memory, exact text</text><text class="l l4" style="font-size:14px" x="10" y="4" text-anchor="start">Screen memory, exact text</text><text class="l l10" style="font-size:14px" x="10" y="4" text-anchor="start">Screen memory, exact text</text></g><g class="p p-so" style="--x1:269.6px;--y1:204.7px;--x2:271.2px;--y2:218.2px;--x4:270.7px;--y4:211.4px;--x10:271.7px;--y10:235.1px"><circle r="6"/><text class="l l1" style="font-size:14px" x="10" y="4" text-anchor="start">Screen memory, OCR</text><text class="l l2" style="font-size:14px" x="10" y="13" text-anchor="start">Screen memory, OCR</text><text class="l l4" style="font-size:14px" x="10" y="4" text-anchor="start">Screen memory, OCR</text><text class="l l10" style="font-size:14px" x="10" y="4" text-anchor="start">Screen memory, OCR</text></g></svg><svg class="pq pq-phone" viewBox="0 0 330 346" aria-hidden="true" focusable="false"><line class="gr" x1="34" x2="324" y1="300.0" y2="300.0"/><text class="tk" style="font-size:10px" x="28" y="304.0" text-anchor="end">0%</text><line class="gr" x1="34" x2="324" y1="228.0" y2="228.0"/><text class="tk" style="font-size:10px" x="28" y="232.0" text-anchor="end">25%</text><line class="gr" x1="34" x2="324" y1="156.0" y2="156.0"/><text class="tk" style="font-size:10px" x="28" y="160.0" text-anchor="end">50%</text><line class="gr" x1="34" x2="324" y1="84.0" y2="84.0"/><text class="tk" style="font-size:10px" x="28" y="88.0" text-anchor="end">75%</text><line class="gr" x1="34" x2="324" y1="12.0" y2="12.0"/><text class="tk" style="font-size:10px" x="28" y="16.0" text-anchor="end">100%</text><line class="gr" x1="63.1" x2="63.1" y1="12" y2="300"/><text class="tk" style="font-size:10px" x="63.1" y="316" text-anchor="middle">$0.50</text><line class="gr" x1="92.2" x2="92.2" y1="12" y2="300"/><text class="tk" style="font-size:10px" x="92.2" y="316" text-anchor="middle">$1</text><line class="gr" x1="121.3" x2="121.3" y1="12" y2="300"/><text class="tk" style="font-size:10px" x="121.3" y="316" text-anchor="middle">$2</text><line class="gr" x1="159.8" x2="159.8" y1="12" y2="300"/><text class="tk" style="font-size:10px" x="159.8" y="316" text-anchor="middle">$5</text><line class="gr" x1="188.9" x2="188.9" y1="12" y2="300"/><text class="tk" style="font-size:10px" x="188.9" y="316" text-anchor="middle">$10</text><line class="gr" x1="218.0" x2="218.0" y1="12" y2="300"/><text class="tk" style="font-size:10px" x="218.0" y="316" text-anchor="middle">$20</text><line class="gr" x1="256.4" x2="256.4" y1="12" y2="300"/><text class="tk" style="font-size:10px" x="256.4" y="316" text-anchor="middle">$50</text><line class="gr" x1="285.5" x2="285.5" y1="12" y2="300"/><text class="tk" style="font-size:10px" x="285.5" y="316" text-anchor="middle">$100</text><line class="gr" x1="314.6" x2="314.6" y1="12" y2="300"/><text class="tk" style="font-size:10px" x="314.6" y="316" text-anchor="middle">$200</text><line class="ax" x1="34" x2="324" y1="300" y2="300"/><text class="at" style="font-size:10px" x="324" y="342" text-anchor="end">Price per person per month →</text><text class="at" style="font-size:10px" transform="translate(6 156.0) rotate(-90)" text-anchor="middle">Facts used →</text><text class="wm wm1" style="font-size:15px" x="318" y="290" text-anchor="end">Normal size</text><text class="wm wm2" style="font-size:15px" x="318" y="290" text-anchor="end">2 times the history</text><text class="wm wm4" style="font-size:15px" x="318" y="290" text-anchor="end">4 times the history</text><text class="wm wm10" style="font-size:15px" x="318" y="290" text-anchor="end">10 times the history</text><polyline class="tr dr" points="93.0,40.8 119.8,37.9 119.6,58.1 121.5,121.4"/><circle class="tp" cx="93.0" cy="40.8" r="2.5"/><circle class="tp" cx="119.8" cy="37.9" r="2.5"/><circle class="tp" cx="119.6" cy="58.1" r="2.5"/><circle class="tp" cx="121.5" cy="121.4" r="2.5"/><polyline class="tr dr" points="97.7,66.7 114.0,138.7 126.8,242.4"/><circle class="tp" cx="97.7" cy="66.7" r="2.5"/><circle class="tp" cx="114.0" cy="138.7" r="2.5"/><circle class="tp" cx="126.8" cy="242.4" r="2.5"/><polyline class="tr" points="77.2,63.8 87.8,58.1 103.2,69.6 133.4,61.0"/><circle class="tp" cx="77.2" cy="63.8" r="2.5"/><circle class="tp" cx="87.8" cy="58.1" r="2.5"/><circle class="tp" cx="103.2" cy="69.6" r="2.5"/><circle class="tp" cx="133.4" cy="61.0" r="2.5"/><polyline class="tr" points="248.0,37.9 276.9,37.9 305.9,43.7"/><circle class="tp" cx="248.0" cy="37.9" r="2.5"/><circle class="tp" cx="276.9" cy="37.9" r="2.5"/><circle class="tp" cx="305.9" cy="43.7" r="2.5"/><polyline class="tr" points="119.8,133.0 121.7,133.0 121.9,124.3 122.9,150.2"/><circle class="tp" cx="119.8" cy="133.0" r="2.5"/><circle class="tp" cx="121.7" cy="133.0" r="2.5"/><circle class="tp" cx="121.9" cy="124.3" r="2.5"/><circle class="tp" cx="122.9" cy="150.2" r="2.5"/><polyline class="tr" points="126.1,156.0 126.6,181.9 127.0,164.6 127.0,167.5"/><circle class="tp" cx="126.1" cy="156.0" r="2.5"/><circle class="tp" cx="126.6" cy="181.9" r="2.5"/><circle class="tp" cx="127.0" cy="164.6" r="2.5"/><circle class="tp" cx="127.0" cy="167.5" r="2.5"/><polyline class="tr" points="126.8,176.2 127.3,187.7 127.2,181.9 127.5,202.1"/><circle class="tp" cx="126.8" cy="176.2" r="2.5"/><circle class="tp" cx="127.3" cy="187.7" r="2.5"/><circle class="tp" cx="127.2" cy="181.9" r="2.5"/><circle class="tp" cx="127.5" cy="202.1" r="2.5"/><g class="p p-cg dr" style="--x1:93.0px;--y1:40.8px;--x2:119.8px;--y2:37.9px;--x4:119.6px;--y4:58.1px;--x10:121.5px;--y10:121.4px"><circle r="6"/><text class="l l1" style="font-size:12px" x="10" y="4" text-anchor="start">ChatGPT memory*</text><text class="l l2" style="font-size:12px" x="10" y="4" text-anchor="start">ChatGPT memory*</text><text class="l l4" style="font-size:12px" x="10" y="4" text-anchor="start">ChatGPT memory*</text><text class="l l10" style="font-size:12px" x="10" y="4" text-anchor="start">ChatGPT memory*</text></g><g class="p p-cl dr g10" style="--x1:97.7px;--y1:66.7px;--x2:114.0px;--y2:138.7px;--x4:126.8px;--y4:242.4px;--x10:126.8px;--y10:242.4px"><circle r="6"/><text class="l l1" style="font-size:12px" x="10" y="4" text-anchor="start">Claude memory*</text><text class="l l2" style="font-size:12px" x="-8" y="-20" text-anchor="end">Claude memory*</text><text class="l l4" style="font-size:12px" x="10" y="4" text-anchor="start">Claude memory*</text><text class="l l10" style="font-size:12px" x="10" y="4" text-anchor="start">Claude memory*, not run at 10×</text></g><g class="p p-io" style="--x1:77.2px;--y1:63.8px;--x2:87.8px;--y2:58.1px;--x4:103.2px;--y4:69.6px;--x10:133.4px;--y10:61.0px"><circle r="6"/><text class="l l1" style="font-size:12px" x="-10" y="4" text-anchor="end">IntentOne</text><text class="l l2" style="font-size:12px" x="10" y="4" text-anchor="start">IntentOne</text><text class="l l4" style="font-size:12px" x="-10" y="4" text-anchor="end">IntentOne</text><text class="l l10" style="font-size:12px" x="10" y="4" text-anchor="start">IntentOne</text></g><g class="p p-wh g10" style="--x1:248.0px;--y1:37.9px;--x2:276.9px;--y2:37.9px;--x4:305.9px;--y4:43.7px;--x10:305.9px;--y10:43.7px"><circle r="6"/><text class="l l1" style="font-size:12px" x="0" y="-12" text-anchor="middle">Whole history</text><text class="l l2" style="font-size:12px" x="0" y="-12" text-anchor="middle">Whole history</text><text class="l l4" style="font-size:12px" x="-10" y="-3" text-anchor="end">Whole history</text><text class="l l10" style="font-size:12px" x="-10" y="4" text-anchor="end">Whole history, too long for 10×</text></g><g class="p p-se" style="--x1:119.8px;--y1:133.0px;--x2:121.7px;--y2:133.0px;--x4:121.9px;--y4:124.3px;--x10:122.9px;--y10:150.2px"><circle r="6"/><text class="l l1" style="font-size:12px" x="10" y="4" text-anchor="start">Search over messages</text><text class="l l2" style="font-size:12px" x="10" y="4" text-anchor="start">Search over messages</text><text class="l l4" style="font-size:12px" x="10" y="4" text-anchor="start">Search over messages</text><text class="l l10" style="font-size:12px" x="10" y="4" text-anchor="start">Search over messages</text></g><g class="p p-sx" style="--x1:126.1px;--y1:156.0px;--x2:126.6px;--y2:181.9px;--x4:127.0px;--y4:164.6px;--x10:127.0px;--y10:167.5px"><circle r="6"/><text class="l l1" style="font-size:12px" x="10" y="4" text-anchor="start">Screen memory, exact text</text><text class="l l2" style="font-size:12px" x="10" y="-3" text-anchor="start">Screen memory, exact text</text><text class="l l4" style="font-size:12px" x="10" y="4" text-anchor="start">Screen memory, exact text</text><text class="l l10" style="font-size:12px" x="10" y="4" text-anchor="start">Screen memory, exact text</text></g><g class="p p-so" style="--x1:126.8px;--y1:176.2px;--x2:127.3px;--y2:187.7px;--x4:127.2px;--y4:181.9px;--x10:127.5px;--y10:202.1px"><circle r="6"/><text class="l l1" style="font-size:12px" x="10" y="4" text-anchor="start">Screen memory, OCR</text><text class="l l2" style="font-size:12px" x="10" y="13" text-anchor="start">Screen memory, OCR</text><text class="l l4" style="font-size:12px" x="10" y="4" text-anchor="start">Screen memory, OCR</text><text class="l l10" style="font-size:12px" x="10" y="4" text-anchor="start">Screen memory, OCR</text></g></svg></div>
+      <div class="pqkey">
+        <span><i class="k-dot"></i>Each memory at the size you picked</span>
+        <span><i class="k-line"></i>Its path from normal size to 10 times</span>
+        <span><i class="k-dot dr"></i>Clearly gets worse</span>
+      </div>
+      <p class="note"><b>At 10 times, most memories cost $2 to $3 a month, even the ones that start cheaper</b><br>Handing over the whole history costs far more: $41 a month at normal size and $163 at 4 times</p>
+      <p class="small">Price per person per month, at list prices</p>
+      <details class="more" id="price-how"><summary>How we count the price<span class="chev" aria-hidden="true"></span></summary><div class="more-body"><p><b>One person's month.</b> The memory takes in 30 days of messages, about 340, and the AI answers 100 requests. We use list prices with no bulk discount, and leave out the test's own scoring</p><p><b>Two models share the work.</b> Claude Haiku 5.5 does each memory's own AI work, like writing notes. Claude Sonnet 5.5 writes every answer, and for the same amount of text it costs 20 times as much. So most of the price is the answers, and a memory that hands the AI more text with each request costs more</p><ul><li>ChatGPT memory*: about 1 cent of note-taking, plus $1.01 for 100 answers that each read about 4,300 tokens, $1.02 in all</li><li>Screen memory, exact text: no notes to write, but each answer reads about 10,500 tokens of screen text, $2.24</li><li>Whole history: each answer reads about 200,000 tokens, $41</li></ul><p><b>Nothing was tuned to cost less.</b> Every memory runs as designed, on the same two models, so these prices compare designs, not what an app would charge</p><p>Answers are priced without the discount for repeated text, since a person's requests come hours apart</p></div></details>
+    </div>
+  </section>
+
+  <section aria-labelledby="new-h">
+    <div class="head">
+      <div class="eyebrow">Compared with other tests</div>
+      <h2 id="new-h">What's different from other memory benchmarks</h2>
+    </div>
+    <div class="card solid">
+      <p class="note">LongMemEval, HaluMem and MemTrace already check some steps of memory<br>PersonalContextBench puts these four together</p>
+      <div class="adds">
+        <div class="add"><b>Known truth</b><span>Every fact is planted, so we know exactly what memory should have</span></div>
+        <div class="add"><b>All four steps</b><span>Learn, store, recall and use, checked every week</span></div>
+        <div class="add"><b>Three sources</b><span>AI chats, messages to people and screens</span></div>
+        <div class="add"><b>Fair source test</b><span>The same memory, fed different sources</span></div>
+      </div>
+      <details class="more"><summary>What the closest benchmarks do<span class="chev" aria-hidden="true"></span></summary><div class="more-body"><dl class="kv"><dt>HaluMem</dt><dd>Scores what a memory extracts and how it updates, on AI chats only</dd><dt>MemTrace</dt><dd>Traces failures to the operation that caused them, in long-context, search and Mem0-style memories, on existing data</dd><dt>LongMemEval</dt><dd>Separates indexing, retrieval and reading, on long chats with an assistant</dd></dl><p>To our knowledge, no published study compares screen memory with memory built from messages</p></div></details>
+    </div>
+  </section>
+
+  <section aria-labelledby="where-h">
+    <div class="head">
+      <div class="eyebrow">Status</div>
+      <h2 id="where-h">Where it stands</h2>
+    </div>
+    <ol class="steps">
+      <li class="step done"><div class="rail"><span class="c"></span><span class="ln"></span></div><b>Pilot</b><span>2 people, 9 memories, Oct 13 to 16, $93</span></li>
+      <li class="step done"><div class="rail"><span class="c"></span><span class="ln"></span></div><b>Memory growth</b><span>2, 4 and 10 times the size, one person</span></li>
+      <li class="step now"><div class="rail"><span class="c"></span><span class="ln"></span></div><b>Paper draft</b><span>Being written</span></li>
+      <li class="step"><div class="rail"><span class="c"></span><span class="ln"></span></div><b>Full run</b><span>12 people, plus LongMemEval and LoCoMo</span></li>
+      <li class="step"><div class="rail"><span class="c"></span><span class="ln"></span></div><b>arXiv</b><span>With the generator, data (CC BY 4.0), harness and a leaderboard</span></li>
+    </ol>
+  </section>
+
+  <section aria-labelledby="help-h">
+    <div class="head">
+      <div class="eyebrow">The ask</div>
+      <h2 id="help-h">How you can help</h2>
+    </div>
+    <div class="asks">
+      <div class="ask solid"><h3>Review</h3><p>Tell us what would make you distrust a result, before the full run</p><small>Start with this page</small></div>
+      <div class="ask solid"><h3>Co-author</h3><p>Own the evaluation runs and shape the paper</p><small>Ideally academic</small></div>
+      <div class="ask solid"><h3>Endorse</h3><p>Endorse the preprint for arXiv</p><small>A few minutes</small></div>
+      <div class="ask solid"><h3>Rate</h3><p>Score 100 answers without knowing which memory wrote them</p><small>About two hours</small></div>
+    </div>
+    <p class="note">To take part, reply to Roma, who sent you this page</p>
+  </section>
+
+</main>
+<script>
+(function () {
+  var smooth = !(window.matchMedia && matchMedia("(prefers-reduced-motion: reduce)").matches);
+  function openRow(id) {
+    var el = id && document.getElementById(id);
+    if (!el || el.tagName !== "DETAILS") return false;
+    el.open = true;
+    el.scrollIntoView({ block: "start", behavior: smooth ? "smooth" : "auto" });
+    return true;
+  }
+  document.addEventListener("click", function (e) {
+    var a = e.target.closest && e.target.closest("a.sys");
+    if (a && openRow(a.getAttribute("href").slice(1))) e.preventDefault();
+  });
+  if (location.hash) openRow(decodeURIComponent(location.hash.slice(1)));
+})();
+</script>
