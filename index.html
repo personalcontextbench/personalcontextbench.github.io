@@ -472,7 +472,7 @@ a.sys:focus-visible { outline: 2px solid var(--cream-stroke); outline-offset: 2p
         <div class="st"><b>156</b><span class="sk">needed facts</span><span class="sd">Facts from the person's life that the requests depend on</span></div>
         <div class="st"><b>11</b><span class="sk">memory systems</span><span class="sd"><a class="sys" href="#m-cg">ChatGPT memory*</a>, <a class="sys" href="#m-cl">Claude memory*</a>, <a class="sys" href="#m-io">IntentOne</a>, <a class="sys" href="#m-he">Hermes Agent</a>, <a class="sys" href="#m-oc">OpenClaw</a> and 6 others</span></div>
       </div>
-      <p class="note">The memories also read each person's messages with other people, and four read their screens instead. What those add is under What else we found, near the end</p>
+      <p class="note">The memories also read each person's messages with other people, and four read their screens instead</p>
       <details class="more"><summary>The 11 systems<span class="chev" aria-hidden="true"></span></summary><div class="more-body"><div class="sysg">
         <div class="sg"><div class="sg-k"><b>3</b>app memories</div><div class="sg-t"><p class="sg-n">ChatGPT memory*, Claude memory*, IntentOne</p><p>Write down facts about the person and the people they talk to, as messages come in</p></div></div>
         <div class="sg"><div class="sg-k"><b>2</b>open-source agents</div><div class="sg-t"><p class="sg-n">Hermes Agent, OpenClaw</p><p>Run as shipped. They keep notes and past chats, and search them for each request</p></div></div>
@@ -604,42 +604,6 @@ a.sys:focus-visible { outline: 2px solid var(--cream-stroke); outline-offset: 2p
         <div class="add"><b>Fair source test</b><span>The same memory, fed different sources</span></div>
       </div>
       <details class="more"><summary>What the closest benchmarks do<span class="chev" aria-hidden="true"></span></summary><div class="more-body"><dl class="kv"><dt>HaluMem</dt><dd>Scores what a memory writes down and how it updates it, on AI chats only</dd><dt>MemTrace</dt><dd>Traces each failure to the memory step that caused it, for whole-history, search and note-taking memories, on existing test data</dd><dt>LongMemEval</dt><dd>Scores saving, searching and reading separately, on long chats with an assistant</dd></dl><p>To our knowledge, no published study compares screen memory with memory built from messages</p></div></details>
-    </div>
-  </section>
-
-  <section aria-labelledby="find-h">
-    <div class="head">
-      <div class="eyebrow">What else we found</div>
-      <h2 id="find-h">Where memory gets its facts</h2>
-    </div>
-    <p class="tlead">Besides AI chats, a memory could also read the person's messages with other people, or what was on their screen. We tested both</p>
-    <div class="q glass one">
-      <div class="qt">
-        <p class="qa">Messages with people carry almost as well as AI chats</p>
-        <p class="sub">Other memory tests use AI chats only. Fed each person's messages with other people too, the same memory used almost the same share of the facts</p>
-      </div>
-      <div class="qc">
-        <span class="unit">Facts used, of those the source shows</span>
-        <div class="mb" role="img" aria-label="The same ChatGPT memory used 97% of the facts AI chats alone show, and 91% of the facts AI chats and messages with other people show.">
-          <div class="mb-row"><span>Only AI chats</span><div class="mb-bar"><i class="dim" style="width:97.0%"></i></div><b>97%</b></div>
-          <div class="mb-row"><span>With messages</span><div class="mb-bar"><i style="width:91.0%"></i></div><b>91%</b></div>
-        </div>
-      </div>
-      <details class="more"><summary>What this shows<span class="chev" aria-hidden="true"></span></summary><div class="more-body"><p>AI chats alone show 91 of the 156 facts the requests need, and adding messages with other people shows 145. We placed the facts, so that gap is set by design, not found</p><p>What we tested is whether a memory carries facts from messages as well as from AI chats. Of the facts each could see, ChatGPT memory* used 97% from AI chats alone and 91% with messages added. IntentOne used 91% and 89%, and the whole history 96% and 88%</p><p>The small drops suggest some facts in messages are harder to carry through. The full study will test this</p></div></details>
-    </div>
-    <div class="q glass one">
-      <div class="qt">
-        <p class="qa">Messages beat screenshots</p>
-        <p class="sub">Screens show every fact the requests need, more than messages do, yet the same memory used fewer of them</p>
-      </div>
-      <div class="qc">
-        <span class="unit">Facts used, of 156 needed</span>
-        <div class="mb" role="img" aria-label="Of 156 needed facts, the same ChatGPT memory used 132 fed messages and 89 fed screenshots read by OCR.">
-          <div class="mb-row"><span>Messages</span><div class="mb-bar"><i style="width:84.6%"></i></div><b>132</b></div>
-          <div class="mb-row"><span>Screenshots</span><div class="mb-bar"><i class="dim" style="width:57.1%"></i></div><b>89</b></div>
-        </div>
-      </div>
-      <details class="more"><summary>Why screens did worse<span class="chev" aria-hidden="true"></span></summary><div class="more-body"><p>The same ChatGPT memory*, given screenshots of the person's screen instead of their messages, used 89 facts instead of 132, and cost twice as much: $1.98 versus $1.02 a month per person</p><p>From screens, the memory wrote down 149 of the 156 facts, more than from messages. But its notes grew more than 20 times longer</p><p>It can hand the AI only about 4,500 words at a time (6,000 tokens). Past that, it hands over only the lines that share words with the request. So of the 62 facts it learned but missed, 56 never reached the AI</p><p>Reading the exact screen text did no better (87) than reading screenshots with OCR (89). Search points the same way: 86 facts from messages, 80 from screens</p><p>Our screens are cleaner than real desktops, so this is a best case for screens</p></div></details>
     </div>
   </section>
 
