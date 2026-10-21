@@ -373,7 +373,7 @@ a.sys:focus-visible { outline: 2px solid var(--cream-stroke); outline-offset: 2p
 }
 
 /* what is new */
-.adds { display: grid; grid-template-columns: repeat(4, minmax(0, 1fr)); gap: 10px; }
+.adds { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 10px; }
 .add { border-radius: 14px; padding: 12px; display: grid; gap: 8px; align-content: start; background: var(--sunken); font-size: 0.9rem; min-width: 0; }
 .add b { font-size: 1rem; font-weight: 600; }
 .add span { font-size: 0.88rem; color: var(--text2); line-height: 1.4; }
@@ -596,14 +596,12 @@ a.sys:focus-visible { outline: 2px solid var(--cream-stroke); outline-offset: 2p
       <h2 id="new-h">What's different from other memory benchmarks</h2>
     </div>
     <div class="card solid">
-      <p class="note">LongMemEval, HaluMem and MemTrace already check some steps of memory<br>PersonalContextBench puts these four together</p>
+      <p class="note">LongMemEval, HaluMem and MemTrace already check some steps of memory<br>PersonalContextBench adds two things</p>
       <div class="adds">
         <div class="add"><b>Known truth</b><span>Every fact is planted, so we know exactly what memory should have</span></div>
         <div class="add"><b>All four steps</b><span>Learn, store, recall and use, each checked for every needed fact</span></div>
-        <div class="add"><b>Three sources</b><span>AI chats, messages to people and screens</span></div>
-        <div class="add"><b>Fair source test</b><span>The same memory, fed different sources</span></div>
       </div>
-      <details class="more"><summary>What the closest benchmarks do<span class="chev" aria-hidden="true"></span></summary><div class="more-body"><dl class="kv"><dt>HaluMem</dt><dd>Scores what a memory writes down and how it updates it, on AI chats only</dd><dt>MemTrace</dt><dd>Traces each failure to the memory step that caused it, for whole-history, search and note-taking memories, on existing test data</dd><dt>LongMemEval</dt><dd>Scores saving, searching and reading separately, on long chats with an assistant</dd></dl><p>To our knowledge, no published study compares screen memory with memory built from messages</p></div></details>
+      <details class="more"><summary>What the closest benchmarks do<span class="chev" aria-hidden="true"></span></summary><div class="more-body"><dl class="kv"><dt>HaluMem</dt><dd>Scores what a memory writes down and how it updates it, on AI chats only</dd><dt>MemTrace</dt><dd>Traces each failure to the memory step that caused it, for whole-history, search and note-taking memories, on existing test data</dd><dt>LongMemEval</dt><dd>Scores saving, searching and reading separately, on long chats with an assistant</dd></dl></div></details>
     </div>
   </section>
 
